@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>联系我们 - 童心惠民</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="emergency-float" onclick="window.location.href='tel:12355'"><span>紧急<br>求助</span></div>
+<header class="header">
+  <div class="header-brand" onclick="window.location.href='index.html'">
+    <div class="header-logo">🧸</div><div class="header-brand-text"><h1>童心惠民</h1><p>联系我们</p></div>
+  </div>
+  <a href="tel:12355" class="header-phone"><span>📞</span><span>援助热线</span></a>
+</header>
+
+<div style="background:linear-gradient(135deg,var(--dark),#1a1a2e);padding:36px 16px;text-align:center;color:#fff;">
+  <h1 style="font-size:22px;font-weight:900;margin-bottom:6px;">联系我们</h1>
+  <p style="font-size:13px;opacity:.75;">有任何问题、预约咨询或合作意向，欢迎联系我们</p>
+</div>
+
+<div class="container" style="padding:24px 16px;">
+
+  <!-- 热线 -->
+  <div class="hotline-card" style="margin-bottom:14px;">
+    <h3>🆘 儿童心理援助热线</h3>
+    <div class="hotline-number">12355</div>
+    <p>24小时 · 专业心理咨询师接听 · 免费</p>
+    <p style="margin-top:6px;font-size:11px;color:var(--muted);">如遇紧急心理危机，请立即拨打</p>
+  </div>
+
+  <!-- 联系方式卡片 -->
+  <div class="card" style="border-left:4px solid var(--primary);margin-bottom:14px;">
+    <div style="font-size:15px;font-weight:800;color:var(--dark);margin-bottom:14px;">📍 联系方式</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="font-size:22px;">🏢</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--dark);">机构地址</div>
+        <div style="font-size:12px;color:var(--muted);">山东省济南市（预约后告知详细地址）</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="font-size:22px;">📱</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--dark);">预约电话</div>
+        <div style="font-size:12px;color:var(--muted);">12355（24小时）| 项目专线：见下方表单</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="font-size:22px;">📧</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--dark);">联系邮箱</div>
+        <div style="font-size:12px;color:var(--muted);">contact@childheart.cn</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 合作邀请 -->
+  <div class="card" style="background:linear-gradient(135deg,#F0F9FF,#E0F2FE);border-color:var(--secondary);margin-bottom:14px;">
+    <div style="font-size:15px;font-weight:800;color:var(--secondary-dark);margin-bottom:10px;">🤝 合作邀请</div>
+    <p style="font-size:12px;color:var(--text);line-height:1.8;margin-bottom:10px;">
+      「童心惠民」正在招募以下合作伙伴：
+    </p>
+    <ul style="font-size:12px;color:var(--text);line-height:1.9;padding-left:16px;">
+      <li>社区居委会（儿童之家/心理服务站合作）</li>
+      <li>中小学（校园心理服务/心理健康讲座）</li>
+      <li>公益基金会（项目资助/联合发起）</li>
+      <li>高校心理系（实习生培养/课题合作）</li>
+    </ul>
+  </div>
+
+  <!-- 留言表单 -->
+  <div class="card">
+    <div style="font-size:15px;font-weight:800;color:var(--dark);margin-bottom:16px;">💬 在线留言</div>
+    <div class="form-group">
+      <label class="form-label">您的称呼</label>
+      <input type="text" class="form-input" id="msg_name" placeholder="可匿名填写" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label class="form-label">联系方式（可选）</label>
+      <input type="text" class="form-input" id="msg_contact" placeholder="电话或邮箱（选填）" maxlength="50">
+    </div>
+    <div class="form-group">
+      <label class="form-label">留言内容 <span class="required">*</span></label>
+      <textarea class="form-textarea" id="msg_content" placeholder="请输入留言内容（5-500字），我们将认真阅读并尽快回复。" maxlength="500"></textarea>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="msg_anon"> 
+        <span style="font-size:12px;color:var(--muted);">匿名留言（不在公开留言墙显示您的称呼）</span>
+      </label>
+    </div>
+    <button class="btn-primary" onclick="submitMsg()">提交留言</button>
+    <div id="msg_success" style="display:none;text-align:center;padding:20px;">
+      <div style="font-size:36px;margin-bottom:10px;">✅</div>
+      <p style="font-size:14px;font-weight:700;color:var(--accent-dark);">留言已提交！</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px;">我们将在3个工作日内回复您</p>
+    </div>
+  </div>
+
+  <!-- 紧急提示 -->
+  <div class="card" style="background:#FFF3F3;border-color:#FFD0D0;margin-top:14px;">
+    <p style="font-size:12px;color:var(--danger);line-height:1.8;">
+      <strong>⚠️ 如果您或孩子正处于心理危机中：</strong><br>
+      请立即拨打 <a href="tel:12355" style="font-weight:800;color:var(--danger);">12355</a>（全国儿童心理援助热线，24小时免费）。<br>
+      如情况危急涉及生命安全，请同时拨打 <a href="tel:120" style="font-weight:800;color:var(--danger);">120</a> 或 <a href="tel:110" style="font-weight:800;color:var(--danger);">110</a>。
+    </p>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-brand">🧸 童心惠民</div>
+  <div class="footer-links">
+    <a href="about.html">关于我们</a>
+    <a href="privacy.html">隐私声明</a>
+    <a href="ethics.html">伦理规范</a>
+  </div>
+  <p style="font-size:11px;opacity:.5;">© 2026 童心惠民公益项目</p>
+</footer>
+
+<script src="api-config.js"></script>
+<script>
+async function submitMsg() {
+  const content = document.getElementById('msg_content').value.trim();
+  if (!content || content.length < 5) {
+    alert('请输入至少5个字的留言内容');
+    return;
+  }
+  const data = {
+    name: document.getElementById('msg_name').value.trim() || '匿名',
+    contact: document.getElementById('msg_contact').value.trim(),
+    content,
+    is_anonymous: document.getElementById('msg_anon').checked
+  };
+  try {
+    await fetch(API_BASE + '/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch (e) {}
+  document.querySelector('.card:last-child').querySelector('.card').innerHTML = '';
+  document.getElementById('msg_success').style.display = 'block';
+}
+</script>
+</body>
+</html>

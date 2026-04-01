@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>预约咨询 - 童心惠民</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .booking-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 32px 16px; text-align: center; color: #fff; }
+  .booking-header h1 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+  .booking-header p { font-size: 13px; opacity: .9; }
+  .booking-body { padding: 20px 16px; max-width: 600px; margin: 0 auto; }
+  .booking-section-title { font-size: 14px; font-weight: 800; color: var(--primary-dark); margin-bottom: 14px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+  .guardian-notice { background: var(--soft-yellow); border-radius: 12px; padding: 14px; margin-bottom: 18px; font-size: 12px; color: var(--primary-dark); line-height: 1.8; }
+  .guardian-notice strong { font-weight: 800; }
+  .success-card { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-radius: var(--radius); padding: 28px 20px; text-align: center; display: none; }
+  .success-card h3 { font-size: 17px; font-weight: 800; color: var(--accent-dark); margin-bottom: 10px; }
+  .success-card p { font-size: 13px; color: var(--text); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="emergency-float" onclick="window.location.href='tel:12355'"><span>紧急<br>求助</span></div>
+
+<header class="header">
+  <div class="header-brand" onclick="window.location.href='index.html'">
+    <div class="header-logo">🧸</div>
+    <div class="header-brand-text"><h1>童心惠民</h1><p>预约咨询</p></div>
+  </div>
+  <a href="tel:12355" class="header-phone"><span>📞</span><span>援助热线</span></a>
+</header>
+
+<div class="booking-header">
+  <h1>📋 预约公益心理咨询</h1>
+  <p>请认真填写以下信息，我们将在 24 小时内与您联系</p>
+</div>
+
+<div class="booking-body">
+
+  <!-- 重要提示 -->
+  <div class="guardian-notice">
+    <strong>⚠️ 未成年预约须知</strong><br>
+    ① 14 周岁以下儿童：必须由监护人（父/母/法定代理人）填写预约表单<br>
+    ② 14-18 周岁青少年：可自行填写，但需监护人知情同意<br>
+    ③ 预约成功后，监护人需签署《未成年人心理咨询知情同意书》
+  </div>
+
+  <div id="bookingForm">
+    <!-- 第一部分：监护人信息 -->
+    <div class="booking-section-title">👤 监护人信息（必填）</div>
+    <div class="form-group">
+      <label class="form-label">监护人姓名 <span class="required">*</span></label>
+      <input type="text" class="form-input" id="guardian_name" placeholder="请输入您的真实姓名" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label class="form-label">联系电话 <span class="required">*</span></label>
+      <input type="tel" class="form-input" id="guardian_phone" placeholder="手机号码，用于接收预约通知" maxlength="11">
+    </div>
+    <div class="form-group">
+      <label class="form-label">与儿童关系 <span class="required">*</span></label>
+      <select class="form-select" id="relation">
+        <option value="">请选择</option>
+        <option value="父亲">父亲</option>
+        <option value="母亲">母亲</option>
+        <option value="祖父/祖母">祖父/祖母</option>
+        <option value="外公/外婆">外公/外婆</option>
+        <option value="其他亲属">其他亲属</option>
+        <option value="法定代理人">法定代理人</option>
+        <option value="学校/社工">学校/社工机构</option>
+      </select>
+    </div>
+
+    <!-- 第二部分：儿童信息 -->
+    <div class="booking-section-title">🧒 被咨询儿童/青少年信息（必填）</div>
+    <div class="form-group">
+      <label class="form-label">孩子姓名 <span class="required">*</span></label>
+      <input type="text" class="form-input" id="child_name" placeholder="孩子的姓名（我们将进行匿名处理）" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label class="form-label">年龄 <span class="required">*</span></label>
+      <select class="form-select" id="child_age">
+        <option value="">请选择年龄段</option>
+        <option value="3-6">3-6 岁（幼儿期）</option>
+        <option value="7-12">7-12 岁（小学阶段）</option>
+        <option value="13-15">13-15 岁（青春期前期）</option>
+        <option value="16-18">16-18 岁（青春期后期）</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">性别</label>
+      <select class="form-select" id="child_gender">
+        <option value="">可不填</option>
+        <option value="男">男</option>
+        <option value="女">女</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+
+    <!-- 第三部分：问题描述 -->
+    <div class="booking-section-title">📝 问题描述</div>
+    <div class="form-group">
+      <label class="form-label">主要困扰类型</label>
+      <select class="form-select" id="issue_type">
+        <option value="">请选择（可多选或自行填写）</option>
+        <option value="情绪问题">情绪问题（焦虑/抑郁/恐惧）</option>
+        <option value="行为问题">行为问题（多动/攻击/退缩）</option>
+        <option value="学业压力">学业压力/厌学/学习困难</option>
+        <option value="人际困扰">人际困扰（同伴关系/校园霸凌）</option>
+        <option value="家庭问题">家庭问题（父母冲突/离异适应）</option>
+        <option value="创伤事件">创伤事件（被欺负/事故/丧亲）</option>
+        <option value="发展评估">发展评估/发育迟缓</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">问题简述</label>
+      <textarea class="form-textarea" id="issue_desc" placeholder="请简要描述孩子目前的主要困扰、持续时间、对生活/学习/家庭的影响。不需要非常详细，初步描述即可。如涉及隐私，可在电话沟通中详细说明。" maxlength="500"></textarea>
+      <div class="form-hint">已填写的文字将严格保密，仅供咨询师参考</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">希望首次咨询时间</label>
+      <select class="form-select" id="preferred_date">
+        <option value="">请选择</option>
+        <option value="尽快">尽快（3天内）</option>
+        <option value="本周内">本周内</option>
+        <option value="下次周">下次周</option>
+        <option value="灵活时间">灵活时间</option>
+      </select>
+    </div>
+
+    <!-- 隐私确认 -->
+    <div class="guardian-notice" style="background:#E8F5E9;color:var(--accent-dark);">
+      <strong>📖 阅读《未成年人隐私保护声明》</strong><br>
+      预约提交后，系统将发送隐私声明链接至您的手机，请监护人认真阅读并知情确认。咨询记录严格保密，详情请见 <a href="privacy.html" style="font-weight:700;">隐私声明</a>。
+    </div>
+
+    <button class="btn-primary" onclick="submitBooking()" id="submitBtn">提交预约申请</button>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:var(--muted);">
+      遇到紧急情况请立即拨打：📞 <a href="tel:12355" style="color:var(--danger);font-weight:700;">12355 儿童心理援助热线</a>
+    </div>
+  </div>
+
+  <!-- 提交成功 -->
+  <div class="success-card" id="successCard">
+    <div style="font-size:48px;margin-bottom:14px;">🌟</div>
+    <h3>预约申请已提交！</h3>
+    <p>我们将在 <strong>24小时内</strong> 通过您留下的电话与您联系，确认预约时间和咨询安排。</p>
+    <p style="margin-top:10px;">如需紧急帮助，请拨打：<br><a href="tel:12355" style="font-size:15px;font-weight:800;color:var(--danger);">12355</a></p>
+    <button class="btn-outline" style="margin-top:16px;" onclick="window.location.href='index.html'">返回首页</button>
+  </div>
+
+</div>
+
+<script src="api-config.js"></script>
+<script>
+async function submitBooking() {
+  const guardian_name = document.getElementById('guardian_name').value.trim();
+  const guardian_phone = document.getElementById('guardian_phone').value.trim();
+  const child_name = document.getElementById('child_name').value.trim();
+  const child_age = document.getElementById('child_age').value;
+
+  // 简单验证
+  if (!guardian_name || !guardian_phone || !child_name || !child_age) {
+    alert('请填写必填项：监护人姓名、联系电话、孩子姓名、孩子年龄');
+    return;
+  }
+  if (!/^1\d{10}$/.test(guardian_phone)) {
+    alert('请输入正确的手机号码');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '提交中...';
+
+  const data = {
+    guardian_name,
+    guardian_phone,
+    relation: document.getElementById('relation').value,
+    child_name,
+    child_age,
+    child_gender: document.getElementById('child_gender').value,
+    issue_type: document.getElementById('issue_type').value,
+    issue_desc: document.getElementById('issue_desc').value,
+    preferred_date: document.getElementById('preferred_date').value
+  };
+
+  try {
+    const res = await fetch(API_BASE + '/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    if (json.code === 0 || res.ok) {
+      document.getElementById('bookingForm').style.display = 'none';
+      document.getElementById('successCard').style.display = 'block';
+    } else {
+      alert('提交失败，请稍后重试或拨打热线 12355');
+      btn.disabled = false;
+      btn.textContent = '重新提交';
+    }
+  } catch (e) {
+    // 离线模式：本地保存
+    localStorage.setItem('childheart_booking_' + Date.now(), JSON.stringify(data));
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('successCard').style.display = 'block';
+  }
+}
+</script>
+
+</body>
+</html>

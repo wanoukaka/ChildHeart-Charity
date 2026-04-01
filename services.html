@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>服务项目 - 童心惠民</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="emergency-float" onclick="window.location.href='tel:12355'"><span>紧急<br>求助</span></div>
+<header class="header">
+  <div class="header-brand" onclick="window.location.href='index.html'">
+    <div class="header-logo">🧸</div><div class="header-brand-text"><h1>童心惠民</h1><p>服务项目</p></div>
+  </div>
+  <a href="tel:12355" class="header-phone"><span>📞</span><span>援助热线</span></a>
+</header>
+
+<div style="background:linear-gradient(135deg,var(--primary),var(--secondary));padding:36px 16px;text-align:center;color:#fff;">
+  <h1 style="font-size:22px;font-weight:900;margin-bottom:6px;">我们的公益服务</h1>
+  <p style="font-size:13px;opacity:.9;">免费或低费用，面向困境儿童及家庭</p>
+</div>
+
+<div class="container" style="padding:24px 16px;">
+
+  <!-- 儿童个体咨询 -->
+  <div class="card" id="individual" style="border-left:4px solid var(--primary);">
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="font-size:36px;">🎨</div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:4px;">儿童个体咨询（3-12岁）</div>
+        <div style="font-size:11px;color:var(--primary);font-weight:700;margin-bottom:10px;">公益价格：免费 | 首次体验：免费</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:10px;">
+          通过游戏治疗、绘画治疗、沙盘等儿童友好方式，帮助孩子表达内心困扰，疏导情绪，改善行为问题。
+        </p>
+        <div style="font-size:12px;color:var(--muted);"><strong>适应范围：</strong>分离焦虑、社交退缩、多动/冲动、情绪不稳定、噩梦、睡眠问题、创伤后适应</div>
+        <button class="btn-primary" style="margin-top:14px;" onclick="window.location.href='booking.html'">立即预约</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 青少年咨询 -->
+  <div class="card" id="adolescent" style="border-left:4px solid var(--accent);">
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="font-size:36px;">🌱</div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:4px;">青少年心理咨询（12-18岁）</div>
+        <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:10px;">公益价格：¥50/次 | 困难家庭：免费</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:10px;">
+          针对青春期特有的心理困扰，采用谈话治疗为主，结合表达性艺术治疗，帮助青少年找回内在力量。
+        </p>
+        <div style="font-size:12px;color:var(--muted);"><strong>适应范围：</strong>学业压力/厌学、情绪低落/抑郁倾向、人际冲突、校园霸凌应对、自我认同探索、家庭矛盾</div>
+        <button class="btn-primary" style="margin-top:14px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));" onclick="window.location.href='booking.html'">立即预约</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 家庭咨询 -->
+  <div class="card" id="family" style="border-left:4px solid var(--secondary);">
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="font-size:36px;">👨‍👩‍👧</div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:4px;">家庭关系咨询</div>
+        <div style="font-size:11px;color:var(--secondary-dark);font-weight:700;margin-bottom:10px;">公益价格：¥100/次 | 困难家庭：免费</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:10px;">
+          以家庭系统视角，帮助家长理解孩子行为背后的心理需求，改善亲子沟通方式，重建健康的家庭互动模式。
+        </p>
+        <div style="font-size:12px;color:var(--muted);"><strong>适应范围：</strong>亲子沟通困难、父母教育分歧、离异家庭适应、两个孩子竞争、手足冲突、家庭创伤</div>
+        <button class="btn-primary" style="margin-top:14px;background:linear-gradient(135deg,var(--secondary),var(--secondary-dark));" onclick="window.location.href='booking.html'">立即预约</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 校园服务 -->
+  <div class="card" id="school" style="border-left:4px solid var(--soft-pink);">
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div style="font-size:36px;">🏫</div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:4px;">校园心理服务</div>
+        <div style="font-size:11px;color:#d4608a;font-weight:700;margin-bottom:10px;">服务对象：学校、老师、学生及家长</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:10px;">
+          为合作学校提供心理健康筛查、创伤干预、危机介入、教师心理培训等服务，构建校园心理防护网络。
+        </p>
+        <div style="font-size:12px;color:var(--muted);"><strong>服务内容：</strong>新生心理普查、班级心理讲座、危机个案干预、教师减压工作坊、家长心理课堂</div>
+        <button class="btn-outline" style="margin-top:14px;color:#d4608a;border-color:#d4608a;" onclick="window.location.href='contact.html'">联系合作</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 服务说明 -->
+  <div class="card" style="background:var(--soft-yellow);border-color:var(--primary);margin-top:10px;">
+    <h3 style="font-size:14px;font-weight:800;color:var(--primary-dark);margin-bottom:8px;">💡 关于费用</h3>
+    <p style="font-size:12px;color:var(--text);line-height:1.8;">
+      「童心惠民」为公益项目，优先服务<strong>经济困难家庭、留守儿童、流动儿童、残疾儿童</strong>。具体费用根据家庭经济状况评估，可申请全额免费。预约时如实填写家庭情况，我们会严格保密。
+    </p>
+    <h3 style="font-size:14px;font-weight:800;color:var(--primary-dark);margin:12px 0 8px;">⏱️ 咨询设置</h3>
+    <p style="font-size:12px;color:var(--text);line-height:1.8;">
+      儿童个体咨询：每次50分钟<br>
+      青少年/家庭咨询：每次50-80分钟<br>
+      首次访谈：60-90分钟（免费）
+    </p>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-brand">🧸 童心惠民</div>
+  <div class="footer-links">
+    <a href="about.html">关于我们</a>
+    <a href="booking.html">预约咨询</a>
+    <a href="contact.html">联系我们</a>
+  </div>
+  <p style="font-size:11px;opacity:.5;">© 2026 童心惠民公益项目</p>
+</footer>
+</body>
+</html>
