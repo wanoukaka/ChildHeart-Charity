@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心理测评 - 童心惠民</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body#scales-page { background: var(--bg); }
+</style>
+</head>
+<body id="scales-page">
+
+<!-- 知情同意弹窗 -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-card">
+    <div class="gate-icon">📋</div>
+    <h2>测评知情同意书</h2>
+    <p>欢迎使用「童心惠民」儿童青少年心理测评。本测评仅供参考，不能替代专业临床诊断。</p>
+    <div class="gate-form">
+      <div class="form-group">
+        <label class="form-label">监护人姓名 <span class="required">*</span></label>
+        <input type="text" class="form-input" id="gateName" placeholder="请输入您的姓名" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label">联系电话 <span class="required">*</span></label>
+        <input type="tel" class="form-input" id="gatePhone" placeholder="用于接收测评报告和咨询服务" maxlength="11">
+        <div class="form-hint">您的信息严格保密，仅用于后续必要的回访联系</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">孩子姓名 <span class="required">*</span></label>
+        <input type="text" class="form-input" id="gateChildName" placeholder="请输入孩子的姓名" maxlength="20">
+        <div class="form-hint">此信息用于生成个性化报告，不会公开显示</div>
+      </div>
+    </div>
+    <div class="notice">
+      <p><strong>⚠️ 重要提示：</strong></p>
+      <p>① 本测评为自助评估工具，结果仅供参考，不能替代专业心理咨询或诊断<br>
+      ② 如您或孩子正处于严重心理困扰中，请立即拨打：<strong>12355</strong><br>
+      ③ 测评过程中请根据孩子真实感受作答<br>
+      ④ 测评结果严格保密，仅家长/监护人可见</p>
+    </div>
+    <div class="gate-actions">
+      <button class="gate-agree" onclick="confirmGate()">我已知悉，开始测评</button>
+      <button class="gate-cancel" onclick="cancelGate()">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- 答题页 -->
+<div id="page-question" class="hidden">
+  <div class="q-topbar">
+    <div class="q-close" onclick="backToScale()">✕</div>
+    <div class="q-progress-bar"><div class="q-progress-fill" id="progressFillQ" style="width:0%"></div></div>
+    <div class="q-progress-text" id="qProgress">1/10</div>
+  </div>
+  <div class="q-body">
+    <div class="q-timeline" id="answerDots"></div>
+    <div id="questionArea"></div>
+    <div class="q-footer">
+      <button class="q-btn q-btn-prev" id="prevBtn" onclick="prevQ()" disabled>← 上一题</button>
+      <button class="q-btn q-btn-next" id="nextBtn" onclick="nextQ()" disabled>下一题 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 报告页 -->
+<div id="page-report" class="hidden">
+  <div class="report-wrap">
+    <div class="report-header">
+      <span class="emoji" id="reportEmoji">🌟</span>
+      <h2 id="reportTitle">测评报告</h2>
+      <p id="reportSub">感谢您的参与，以下是测评结果</p>
+      <p id="reportGuardian" style="font-size:11px;opacity:.8;margin-top:4px;"></p>
+    </div>
+    <div class="report-body" id="reportBody"></div>
+  </div>
+  <div style="padding:0 16px 24px;display:flex;gap:10px;">
+    <button class="btn-back-home" onclick="backToScale()">← 返回测评</button>
+    <button class="btn-retry" onclick="retryScale()">重新测评</button>
+  </div>
+</div>
+
+<!-- 页面主体（量表选择） -->
+<div id="page-scales">
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-brand" onclick="location.href='index.html'">
+        <div class="header-logo">🧸</div>
+        <div class="header-brand-text"><h1>童心惠民</h1><p>心理测评</p></div>
+      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">首页</a></li>
+          <li><a href="about.html">关于我们</a></li>
+          <li><a href="services.html">服务项目</a></li>
+          <li><a href="resources.html">资源中心</a></li>
+          <li><a href="stories.html">公益故事</a></li>
+          <li><a href="scales.html" class="active">心理测评</a></li>
+          <li><a href="contact.html">联系我们</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero-banner" style="margin:16px;">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🧪 专业测评 · 仅供参考</div>
+      <h2 class="hero-title">儿童青少年心理测评</h2>
+      <p class="hero-desc">科学评估孩子的心理状态，帮助家长更好地理解和支持孩子成长。测评结果仅供家长参考，不替代专业临床诊断。</p>
+    </div>
+  </section>
+
+  <section class="container section">
+    <div class="section-title">
+      <h2>选择<span style="color:var(--primary)">适合</span>的测评</h2>
+      <p>根据孩子年龄和评估目标选择合适的量表</p>
+    </div>
+
+    <div class="scale-grid">
+      <div class="scale-card" onclick="gateAndStart('mht')">
+        <div class="scale-icon">🧠</div>
+        <div class="scale-name">MHT 心理健康量表</div>
+        <div class="scale-age">适合 12-18 岁</div>
+        <div class="scale-desc">中学生心理健康评定，包含学习压力、情绪波动、人际敏感等8个维度</div>
+      </div>
+      <div class="scale-card" onclick="gateAndStart('sdq')">
+        <div class="scale-icon">💪</div>
+        <div class="scale-name">SDQ 优点与困难问卷</div>
+        <div class="scale-age">适合 4-16 岁</div>
+        <div class="scale-desc">国际通用儿童青少年心理筛查表，评估情绪、行为、同伴关系等5个维度</div>
+      </div>
+      <div class="scale-card" onclick="gateAndStart('cdi')">
+        <div class="scale-icon">🌧️</div>
+        <div class="scale-name">CDI 儿童抑郁自评量表</div>
+        <div class="scale-age">适合 8-17 岁</div>
+        <div class="scale-desc">专业儿童抑郁情绪筛查，评估情绪低落、兴趣减退、自我评价等维度</div>
+      </div>
+      <div class="scale-card" onclick="gateAndStart('tas')">
+        <div class="scale-icon">📝</div>
+        <div class="scale-name">TAS 考试焦虑量表</div>
+        <div class="scale-age">适合 10-18 岁</div>
+        <div class="scale-desc">测评考前焦虑程度，了解孩子在考试中的情绪状态及应对方式</div>
+      </div>
+      <div class="scale-card" onclick="gateAndStart('adhd')">
+        <div class="scale-icon">🎯</div>
+        <div class="scale-name">ADHD 注意力缺陷多动筛查</div>
+        <div class="scale-age">适合 6-18 岁</div>
+        <div class="scale-desc">注意力缺陷/多动冲动评估，早期发现，早期干预</div>
+      </div>
+      <div class="scale-card" onclick="gateAndStart('trauma')">
+        <div class="scale-icon">🌿</div>
+        <div class="scale-name">儿童创伤后应激筛查</div>
+        <div class="scale-age">适合 6-18 岁</div>
+        <div class="scale-desc">评估经历创伤事件后的心理反应，及时发现创伤应激障碍</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;background:var(--soft-yellow);border-color:var(--primary);">
+      <p style="font-size:12px;color:var(--primary-dark);line-height:1.8;">
+        <strong>⚠️ 测评说明：</strong>以上量表为专业心理评估工具，但<strong>仅供参考</strong>，不能替代精神科诊断或心理咨询。如测评结果显示需要关注，建议<strong>预约专业咨询</strong>，或拨打热线 <strong>12355</strong> 寻求帮助。
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-brand">🧸 童心惠民</div>
+    <div class="footer-links">
+      <a href="privacy.html">隐私声明</a>
+      <a href="ethics.html">伦理规范</a>
+      <a href="contact.html">联系我们</a>
+    </div>
+    <p style="font-size:11px;opacity:.5;">© 2026 童心惠民公益项目 · 仅供家长参考，不替代专业诊疗</p>
+  </footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// 量表数据
+// ═══════════════════════════════════════
+const SCALES = {
+  mht: {
+    name: 'MHT 心理健康量表',
+    age: '12-18岁',
+    emoji: '🧠',
+    total: 8,
+    questions: [
+      '你是否经常感到睡眠不好？',
+      '你是否经常不想上学？',
+      '你在学习时是否经常思想不集中？',
+      '你是否经常觉得父母不理解你？',
+      '你是否经常感到情绪低落，高兴不起来？',
+      '你是否经常和同学、朋友发生矛盾？',
+      '你对自己是否有信心？',
+      '考试前你是否经常紧张、担心？'
+    ],
+    options: ['没有', '偶尔', '经常', '总是'],
+    score: function(answers) {
+      const total = answers.reduce((a,b)=>a+b,0);
+      const max = 24;
+      const pct = Math.round((total/max)*100);
+      let level = '', sub = '', color = '#FF9B42', advice = '';
+      if (total <= 4) { level='心理状态良好'; sub='各维度表现正常，继续保持'; color='#7DC383'; }
+      else if (total <= 10) { level='轻度心理困扰'; sub='部分维度需要关注，建议加强沟通'; color='#FF9B42'; }
+      else if (total <= 16) { level='中度心理困扰'; sub='建议预约心理咨询师进一步评估'; color='#FF7B7B'; }
+      else { level='重度心理困扰'; sub='建议尽快联系专业心理帮助'; color='#FF5757'; }
+      advice = total >= 10
+        ? '建议家长与孩子进行深入沟通，了解近期生活学习情况。如持续2周以上，建议预约专业咨询：<strong>12355</strong>'
+        : '继续保持良好的亲子沟通，关注孩子的情绪变化。';
+      return { total, pct, level, sub, color, advice };
+    }
+  },
+  sdq: {
+    name: 'SDQ 优点与困难问卷',
+    age: '4-16岁',
+    emoji: '💪',
+    total: 5,
+    questions: [
+      '孩子是否愿意与同龄伙伴一起玩耍？',
+      '孩子是否经常坐立不安，难以长时间安静？',
+      '孩子是否经常说"我很笨"或缺乏自信？',
+      '孩子是否经常与他人发生冲突或攻击行为？',
+      '孩子是否经常看起来悲伤或情绪低落？'
+    ],
+    options: ['不符合', '部分符合', '完全符合'],
+    score: function(answers) {
+      const total = answers.reduce((a,b)=>a+b,0);
+      const max = 10;
+      const pct = Math.round((total/max)*100);
+      let level='', sub='', color='#FF9B42', advice='';
+      if (total <= 2) { level='发展状况良好'; sub='各维度表现正常'; color='#7DC383'; }
+      else if (total <= 5) { level='轻度关注'; sub='部分行为建议观察'; color='#FF9B42'; }
+      else if (total <= 7) { level='中度关注'; sub='建议与老师沟通，了解学校表现'; color='#FF7B7B'; }
+      else { level='高度关注'; sub='建议预约专业评估'; color='#FF5757'; }
+      advice = total >= 5 ? '建议家长与孩子建立更多情感沟通机会，关注学校表现，必要时预约专业心理咨询。' : '继续保持良好的亲子互动，关注孩子的情绪变化。';
+      return { total, pct, level, sub, color, advice };
+    }
+  },
+  cdi: {
+    name: 'CDI 儿童抑郁自评量表',
+    age: '8-17岁',
+    emoji: '🌧️',
+    total: 9,
+    questions: [
+      '最近2周，你是否经常心情不好？',
+      '最近2周，你是否对以前喜欢的事情失去兴趣？',
+      '最近2周，你的食欲是否有明显变化？',
+      '最近2周，你是否经常感到疲倦？',
+      '最近2周，你是否经常自责，觉得自己不好？',
+      '最近2周，你是否上课难以集中注意力？',
+      '最近2周，你是否觉得自己没有价值？',
+      '最近2周，你是否睡眠变差（失眠或过度睡眠）？',
+      '最近2周，你是否有过不想活的想法？'
+    ],
+    options: ['完全没有', '偶尔有', '经常有', '一直有'],
+    score: function(answers) {
+      const total = answers.reduce((a,b)=>a+b,0);
+      const max = 27;
+      const pct = Math.round((total/max)*100);
+      let level='', sub='', color='#FF9B42', advice='';
+      if (total <= 7) { level='情绪状态良好'; sub='继续加油，保持乐观心态'; color='#7DC383'; }
+      else if (total <= 14) { level='轻度情绪困扰'; sub='建议多与信任的人倾诉'; color='#FF9B42'; }
+      else if (total <= 20) { level='中度情绪困扰'; sub='建议预约专业心理帮助'; color='#FF7B7B'; }
+      else { level='需要紧急关注'; sub='请立即联系心理咨询师或拨打热线'; color='#FF5757'; }
+      if (answers[8] >= 2) advice = '⚠️ 检测到消极想法，请立即告知家长并联系专业心理帮助：拨打 <strong>12355</strong> 或前往最近医院心理科。';
+      else advice = total >= 14 ? '建议预约专业心理咨询，拨打热线 <strong>12355</strong> 了解可获得的支持。' : '建议多与家长、老师沟通，表达内心感受。适当运动和户外活动有助于改善情绪。';
+      return { total, pct, level, sub, color, advice };
+    }
+  },
+  tas: {
+    name: 'TAS 考试焦虑量表',
+    age: '10-18岁',
+    emoji: '📝',
+    total: 8,
+    questions: [
+      '考试前你是否经常失眠或睡眠很差？',
+      '你在考试时是否感到心跳加速、手心出汗？',
+      '你是否在考试中因紧张而影响发挥？',
+      '你是否在重要考试前反复担心成绩？',
+      '你是否在考试时大脑一片空白？',
+      '你是否因为害怕考试而逃避学习？',
+      '你是否在考试后仍然感到焦虑？',
+      '你的父母是否经常因考试给你施压？'
+    ],
+    options: ['从未', '偶尔', '有时', '经常'],
+    score: function(answers) {
+      const total = answers.reduce((a,b)=>a+b,0);
+      const max = 24;
+      const pct = Math.round((total/max)*100);
+      let level='', sub='', color='#FF9B42', advice='';
+      if (total <= 5) { level='考试心态良好'; sub='自信从容，考试发挥稳定'; color='#7DC383'; }
+      else if (total <= 12) { level='轻度考试焦虑'; sub='正常范围内，适度紧张有助于发挥'; color='#FF9B42'; }
+      else if (total <= 18) { level='中度考试焦虑'; sub='建议学习放松技巧，如腹式呼吸'; color='#FF7B7B'; }
+      else { level='高度考试焦虑'; sub='建议寻求专业心理干预'; color='#FF5757'; }
+      advice = total >= 13 ? '建议学习系统脱敏或放松训练（深呼吸、正念冥想）。如果焦虑严重影响学习和生活，请预约心理咨询。' : '建议考前保证充足睡眠，适当运动，家长避免过度施压。';
+      return { total, pct, level, sub, color, advice };
+    }
+  },
+  adhd: {
+    name: 'ADHD 注意力缺陷多动筛查',
+    age: '6-18岁',
+    emoji: '🎯',
+    total: 9,
+    questions: [
+      '你是否经常在上课或做作业时走神发呆？',
+      '你是否经常坐不住，小动作很多？',
+      '你是否经常在不该跑的地方跑来跑去？',
+      '你是否经常很难安静地完成一件事？',
+      '你是否经常话很多，经常打断别人说话？',
+      '你是否经常很难等待轮到自己？',
+      '你是否经常忘记带东西或忘记要做的事？',
+      '你是否经常做事虎头蛇尾，难以坚持？',
+      '以上情况是否同时出现在家庭和学校？'
+    ],
+    options: ['从来没有', '偶尔有', '经常有', '总是有'],
+    score: function(answers) {
+      const total = answers.reduce((a,b)=>a+b,0);
+      const max = 27;
+      const pct = Math.round((total/max)*100);
+      let level='', sub='', color='#FF9B42', advice='';
+      if (total <= 8) { level='注意力状态正常'; sub='继续保持良好习惯'; color='#7DC383'; }
+      else if (total <= 14) { level='需密切关注'; sub='建议家长观察并记录行为发生频率'; color='#FF9B42'; }
+      else if (total <= 20) { level='疑似 ADHD 倾向'; sub='建议预约专业评估（心理+学校）'; color='#FF7B7B'; }
+      else { level='高度疑似 ADHD'; sub='建议尽快就诊儿童精神科或发育行为科'; color='#FF5757'; }
+      advice = total >= 15 ? '建议家长不要责骂孩子，而采用正向行为强化。请尽快预约专业评估：<strong>12355</strong>或联系儿童发育行为科医生。' : '建议家长通过规律作息、减少干扰、建立奖励机制等方式帮助孩子改善专注力。';
+      return { total, pct, level, sub, color, advice };
+    }
+  },
+  trauma: {
+    name: '儿童创伤后应激筛查',
+    age: '6-18岁',
+    emoji: '🌿',
+    total: 8,
+    questions: [
+      '最近是否经历了让你非常害怕/受伤/难过的事情？',
+      '这件事之后，你是否经常做噩梦或被惊醒？',
+      '你是否经常回想起那件事，难以控制？',
+      '你是否刻意回避与那件事有关的人或地方？',
+      '你是否比平时更容易被吓到或更紧张？',
+      '你是否感觉自己对喜欢的事情失去兴趣了？',
+      '你是否觉得自己和别人不一样了？',
+      '以上情况是否持续超过1个月？'
+    ],
+    options: ['完全没有', '有一点', '比较明显', '非常严重'],
+    score: function(answers) {
+      const total = answers.reduce((a,b)=>a+b,0);
+      const max = 24;
+      const pct = Math.round((total/max)*100);
+      let level='', sub='', color='#FF9B42', advice='';
+      if (total <= 5) { level='创伤反应较轻'; sub='注意观察，持续关注孩子情绪'; color='#7DC383'; }
+      else if (total <= 12) { level='中度创伤反应'; sub='建议增加陪伴，必要时预约专业咨询'; color='#FF9B42'; }
+      else if (total <= 18) { level='明显创伤后应激反应'; sub='建议尽快预约专业心理干预'; color='#FF7B7B'; }
+      else { level='严重创伤后应激反应'; sub='请立即联系专业心理帮助，必要时就诊精神科'; color='#FF5757'; }
+      advice = total >= 13 ? '请家长给予充分的安全感，避免反复追问事件细节。尽快预约专业创伤治疗：<strong>12355</strong>。' : '家长可给予充分倾听和陪伴，不强迫孩子回忆事件。保持日常生活规律有助于恢复。';
+      return { total, pct, level, sub, color, advice };
+    }
+  }
+};
+
+// ═══════════════════════════════════════
+// 全局状态
+// ═══════════════════════════════════════
+let currentScale = '';
+let currentQ = 0;
+let answers = [];
+let pendingScale = '';
+let gateInfo = {};
+
+// ═══════════════════════════════════════
+// 知情同意
+// ═══════════════════════════════════════
+function gateAndStart(scale) {
+  pendingScale = scale;
+  document.getElementById('gateOverlay').classList.remove('hidden');
+}
+
+function confirmGate() {
+  var name = document.getElementById('gateName').value.trim();
+  var phone = document.getElementById('gatePhone').value.trim();
+  var childName = document.getElementById('gateChildName').value.trim();
+  if (!name) { alert('请填写监护人姓名'); return; }
+  if (!/^1\d{10}$/.test(phone)) { alert('请输入正确的手机号码'); return; }
+  if (!childName) { alert('请填写孩子姓名'); return; }
+  gateInfo = { name: name, phone: phone, childName: childName };
+  document.getElementById('gateOverlay').classList.add('hidden');
+  startScale(pendingScale);
+}
+
+function cancelGate() {
+  document.getElementById('gateOverlay').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════
+// 开始量表
+// ═══════════════════════════════════════
+function startScale(scale) {
+  currentScale = scale;
+  currentQ = 0;
+  answers = new Array(SCALES[scale].total).fill(null);
+  document.getElementById('page-scales').classList.add('hidden');
+  document.getElementById('page-question').classList.remove('hidden');
+  document.getElementById('page-report').classList.add('hidden');
+  renderQuestion();
+}
+
+function backToScale() {
+  document.getElementById('page-scales').classList.remove('hidden');
+  document.getElementById('page-question').classList.add('hidden');
+  document.getElementById('page-report').classList.add('hidden');
+  window.scrollTo({ top: 0 });
+}
+
+function retryScale() {
+  startScale(currentScale);
+}
+
+// ═══════════════════════════════════════
+// 答题
+// ═══════════════════════════════════════
+function renderQuestion() {
+  const s = SCALES[currentScale];
+  const total = s.total;
+  const pct = Math.round(((currentQ+1)/total)*100);
+  document.getElementById('progressFillQ').style.width = pct+'%';
+  document.getElementById('qProgress').textContent = (currentQ+1)+'/'+total;
+
+  // 时间轴
+  let dotsHtml = '';
+  s.questions.forEach((_,i) => {
+    let cls = 'timeline-dot';
+    if (answers[i] !== null) cls += ' done';
+    else if (i === currentQ) cls += ' current';
+    dotsHtml += `<div class="${cls}" onclick="jumpTo(${i})"></div>`;
+  });
+  document.getElementById('answerDots').innerHTML = dotsHtml;
+
+  const qText = s.questions[currentQ];
+  let optsHtml = s.options.map((opt, i) =>
+    `<div class="option-chip${answers[currentQ]===i?' selected':''}" onclick="selectOpt(${i})">
+      <span class="option-num">${i+1}</span>${opt}</div>`
+  ).join('');
+
+  document.getElementById('questionArea').innerHTML = `
+    <div class="question-card">
+      <div class="q-text">${qText}</div>
+      <div class="option-list">${optsHtml}</div>
+    </div>`;
+
+  document.getElementById('prevBtn').disabled = currentQ === 0;
+  const isLast = currentQ === total - 1;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = isLast ? '查看报告 →' : '下一题 →';
+  nextBtn.disabled = answers[currentQ] === null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOpt(idx) {
+  answers[currentQ] = idx;
+  document.querySelectorAll('.option-chip').forEach((el,i) => el.classList.toggle('selected',i===idx));
+  document.getElementById('nextBtn').disabled = false;
+  const dots = document.querySelectorAll('.timeline-dot');
+  dots.forEach((d,i) => {
+    d.classList.remove('done','current');
+    if (answers[i] !== null) d.classList.add('done');
+    if (i === currentQ) d.classList.add('current');
+  });
+}
+
+function nextQ() {
+  if (answers[currentQ] === null) return;
+  if (currentQ < SCALES[currentScale].total - 1) { currentQ++; renderQuestion(); }
+  else { showReport(); }
+}
+
+function prevQ() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function jumpTo(idx) {
+  currentQ = idx;
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════
+// 报告
+// ═══════════════════════════════════════
+function showReport() {
+  const s = SCALES[currentScale];
+  const result = s.score(answers);
+  const circ = 339;
+  const offset = circ - (circ * result.pct / 100);
+
+  document.getElementById('page-question').classList.add('hidden');
+  document.getElementById('page-report').classList.remove('hidden');
+  document.getElementById('reportEmoji').textContent = s.emoji;
+  document.getElementById('reportTitle').textContent = s.name + ' 测评报告';
+  document.getElementById('reportSub').textContent = '适合年龄：' + s.age + ' · 感谢您的参与';
+  document.getElementById('reportGuardian').textContent = gateInfo.name ? '监护人：' + gateInfo.name + (gateInfo.phone ? ' · ' + gateInfo.phone : '') + (gateInfo.childName ? ' · 孩子：' + gateInfo.childName : '') : '';
+
+  document.getElementById('reportBody').innerHTML = `
+    <div class="score-ring">
+      <div class="score-ring-wrap">
+        <svg viewBox="0 0 120 120">
+          <circle class="bg" cx="60" cy="60" r="54"/>
+          <circle class="fg" cx="60" cy="60" r="54" style="stroke-dashoffset:${offset}"/>
+        </svg>
+        <div class="inner">
+          <span class="num">${result.total}</span>
+          <span class="label">综合得分</span>
+        </div>
+      </div>
+    </div>
+    <div class="score-level" style="color:${result.color}">${result.level}</div>
+    <div class="score-sub">${result.sub}</div>
+    <div class="result-box" style="margin-top:16px;">
+      <strong>💡 分析与建议：</strong><br>${result.advice}
+    </div>
+    <div class="result-box" style="background:#FFF3F3;border-color:#FFD0D0;">
+      <strong>⚠️ 免责声明：</strong><br>本测评为自助参考工具，不能替代精神科诊断或专业心理咨询。如您感到需要帮助，请拨打<strong>12355</strong>或联系专业心理咨询师。
+    </div>`;
+
+  window.scrollTo({ top: 0 });
+}
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 <title>童心惠民 - 儿童公益心理咨询平台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1775028035">
+<link rel="stylesheet" href="css/style.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧸</text></svg>">
 </head>
 <body>
@@ -18,27 +18,26 @@
 
 <!-- 顶部导航 -->
 <header class="header">
-  <div class="header-brand" onclick="window.location.href='index.html'">
-    <div class="header-logo">🧸</div>
-    <div class="header-brand-text">
-      <h1>童心惠民</h1>
-      <p>公益儿童心理援助</p>
+  <div class="header-inner">
+    <div class="header-brand" onclick="window.location.href='index.html'">
+      <div class="header-logo">🧸</div>
+      <div class="header-brand-text">
+        <h1>童心惠民</h1>
+        <p>公益儿童心理援助</p>
+      </div>
     </div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">首页</a></li>
+        <li><a href="about.html">关于我们</a></li>
+        <li><a href="services.html">服务项目</a></li>
+        <li><a href="resources.html">资源中心</a></li>
+        <li><a href="stories.html">公益故事</a></li>
+        <li><a href="scales.html">心理测评</a></li>
+        <li><a href="contact.html">联系我们</a></li>
+      </ul>
+    </nav>
   </div>
-  <nav>
-    <ul class="nav-links">
-      <li><a href="index.html" class="active">首页</a></li>
-      <li><a href="about.html">关于我们</a></li>
-      <li><a href="services.html">服务项目</a></li>
-      <li><a href="resources.html">资源中心</a></li>
-      <li><a href="stories.html">公益故事</a></li>
-      <li><a href="contact.html">联系我们</a></li>
-    </ul>
-  </nav>
-  <a href="tel:12355" class="header-phone">
-    <span>📞</span>
-    <span>援助热线</span>
-  </a>
 </header>
 
 <!-- Hero Banner -->
@@ -151,6 +150,82 @@
   </div>
   <div style="text-align:center; margin-top: 14px;">
     <button class="btn-outline" onclick="window.location.href='resources.html'">进入资源中心 →</button>
+  </div>
+</section>
+
+<!-- 心理测评 -->
+<section class="container section">
+  <div class="section-title">
+    <h2 style="text-align:center">心理<span style="color:var(--primary)">测评</span></h2>
+    <p>科学评估，专业参考，守护成长</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="card" style="border-left:4px solid var(--primary);cursor:pointer;" onclick="location.href='scales.html'">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:28px;">🧠</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--dark);">MHT 心理健康量表</div>
+          <div style="font-size:11px;color:var(--primary);font-weight:700;">适合 12-18 岁</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">8维度中学生心理评估</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--secondary);cursor:pointer;" onclick="location.href='scales.html'">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:28px;">💪</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--dark);">SDQ 优点与困难问卷</div>
+          <div style="font-size:11px;color:var(--secondary-dark);font-weight:700;">适合 4-16 岁</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">国际通用儿童心理筛查</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--accent);cursor:pointer;" onclick="location.href='scales.html'">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:28px;">🌧️</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--dark);">CDI 儿童抑郁自评量表</div>
+          <div style="font-size:11px;color:var(--accent-dark);font-weight:700;">适合 8-17 岁</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">专业抑郁情绪筛查</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--soft-pink);cursor:pointer;" onclick="location.href='scales.html'">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:28px;">📝</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--dark);">TAS 考试焦虑量表</div>
+          <div style="font-size:11px;color:#d4608a;font-weight:700;">适合 10-18 岁</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">考前焦虑程度评估</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-left:4px solid #9C27B0;cursor:pointer;" onclick="location.href='scales.html'">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:28px;">🎯</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--dark);">ADHD 注意力缺陷多动筛查</div>
+          <div style="font-size:11px;color:#7B1FA2;font-weight:700;">适合 6-18 岁</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">注意力缺陷/多动冲动评估</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-left:4px solid #4CAF50;cursor:pointer;" onclick="location.href='scales.html'">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:28px;">🌿</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--dark);">儿童创伤后应激筛查</div>
+          <div style="font-size:11px;color:#388E3C;font-weight:700;">适合 6-18 岁</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">创伤后应激障碍早期筛查</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center; margin-top: 14px;">
+    <button class="btn-primary" onclick="location.href='scales.html'">进入测评中心 →</button>
+  </div>
+  <div style="margin-top:12px;text-align:center;">
+    <span style="font-size:11px;color:var(--muted);">⚠️ 测评仅供参考，不替代专业临床诊断</span>
   </div>
 </section>
 
