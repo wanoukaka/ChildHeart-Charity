@@ -110,9 +110,13 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   50% { transform: scale(1.05); box-shadow: 0 6px 24px rgba(255,87,87,0.7); }
 }
 
-/* ── 通用容器 ── */
-.container { max-width: 760px; margin: 0 auto; padding: 0 16px; }
-.section { padding: 32px 0; }
+/* ── 通用容器（全宽平铺，与Hero Banner同宽） ── */
+.container { max-width: 100%; padding: 0; }
+.section {
+  padding: 32px 26px;
+  margin: 16px;
+  border-radius: 22px;
+}
 
 /* ── 通用标题 ── */
 .section-title {
@@ -137,7 +141,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 /* ── 通用卡片 ── */
 .card {
   background: var(--white);
-  border-radius: var(--radius);
+  border-radius: 22px;
   padding: 20px;
   margin-bottom: 14px;
   border: 1.5px solid var(--border);
@@ -175,7 +179,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 }
 .btn-outline:hover { background: var(--primary); color: #fff; }
 
-/* ── Hero Banner ── */
+/* ── Hero Banner（与其他Section统一） ── */
 .hero-banner {
   position: relative; overflow: hidden;
   margin: 16px; border-radius: 22px;
@@ -191,7 +195,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   opacity: .5;
 }
-.hero-content { position: relative; z-index: 1; padding: 30px 26px; width: 100%; color: #fff; }
+.hero-content { position: relative; z-index: 1; padding: 32px 26px; width: 100%; color: #fff; }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 5px;
   background: rgba(255,255,255,0.25);
