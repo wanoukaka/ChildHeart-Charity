@@ -31,11 +31,13 @@ const bookingsRouter = require('./routes/bookings');
 const messagesRouter = require('./routes/messages');
 const resourcesRouter = require('./routes/resources');
 const adminRouter = require('./routes/admin');
+const casesRouter = require('./routes/cases');
 
 app.use('/api/bookings', bookingsRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/resources', resourcesRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/cases', casesRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ code: 0, msg: '童心惠民服务正常', time: new Date().toISOString() });
