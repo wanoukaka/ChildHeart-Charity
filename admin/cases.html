@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个案登记 · 童心惠民</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🌈</span>
+    <span class="topbar-title">童心惠民</span>
+    <nav class="topbar-nav">
+      <a href="dashboard.html" class="nav-link">📊 数据看板</a>
+      <a href="bookings.html" class="nav-link">📋 预约管理</a>
+      <a href="cases.html" class="nav-link active">🗂 个案登记</a>
+      <a href="crisis.html" class="nav-link">🚨 危机干预</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user">管理员</span>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
+</header>
+
+<main class="page-wrapper">
+  <div class="page-title">🗂 个案登记（去标识化）</div>
+
+  <!-- 统计概览 -->
+  <div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card primary">
+      <div class="stat-label">个案的总数</div>
+      <div class="stat-value primary" id="statTotal">-</div>
+    </div>
+    <div class="stat-card danger">
+      <div class="stat-label">高风险个案的</div>
+      <div class="stat-value danger" id="statHigh">-</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-label">已结案</div>
+      <div class="stat-value" id="statClosed">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">进行中</div>
+      <div class="stat-value" id="statActive">-</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <h3>个案列表</h3>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <select class="form-select" id="filterRisk" onchange="loadCases()">
+          <option value="">全部风险</option>
+          <option value="一般">一般</option>
+          <option value="关注">关注</option>
+          <option value="重点">重点</option>
+        </select>
+        <select class="form-select" id="filterStatus" onchange="loadCases()">
+          <option value="">全部状态</option>
+          <option value="pending">待跟进</option>
+          <option value="in_progress">进行中</option>
+          <option value="completed">已结案</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增个案</button>
+      </div>
+    </div>
+
+    <div id="casesTable">
+      <div class="loading-mask"><div class="spinner"></div>加载中...</div>
+    </div>
+  </div>
+</main>
+
+<!-- 新增个案模态框 -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal" style="width:620px;">
+    <div class="modal-header">
+      <div class="modal-title">🗂 新增个案</div>
+      <button class="modal-close" onclick="closeModal('addModal')">×</button>
+    </div>
+    <form id="addCaseForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">孩子姓名 <span style="color:var(--danger)">*</span></label>
+          <input type="text" class="form-input" name="child_name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">孩子年龄 <span style="color:var(--danger)">*</span></label>
+          <input type="number" class="form-input" name="child_age" min="1" max="18" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">性别</label>
+          <select class="form-input" name="child_gender">
+            <option value="">未选择</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">年龄段</label>
+          <select class="form-input" name="child_age_group">
+            <option value="">请选择</option>
+            <option value="3-6">3-6岁</option>
+            <option value="7-12">7-12岁</option>
+            <option value="13-15">13-15岁</option>
+            <option value="16-18">16-18岁</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">监护人姓名</label>
+          <input type="text" class="form-input" name="guardian_name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">监护人电话（仅存尾号）</label>
+          <input type="tel" class="form-input" name="guardian_phone" placeholder="填写完整号码，系统仅存尾号4位" maxlength="11">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">来源渠道</label>
+          <select class="form-input" name="source">
+            <option value="其他">其他</option>
+            <option value="网站">网站</option>
+            <option value="热线">热线</option>
+            <option value="学校">学校</option>
+            <option value="社区">社区</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">风险等级</label>
+          <select class="form-input" name="risk_level">
+            <option value="一般">一般</option>
+            <option value="关注">关注</option>
+            <option value="重点">重点</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">问题类型</label>
+        <input type="text" class="form-input" name="issue_type" placeholder="如：焦虑、抑郁、ADHD、创伤、学业">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">问题描述</label>
+        <textarea class="form-textarea" name="issue_desc" rows="3" placeholder="请描述孩子的主要问题..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addModal')">取消</button>
+        <button type="submit" class="btn btn-primary">创建个案</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 查看详情模态框 -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal" style="width:580px;">
+    <div class="modal-header">
+      <div class="modal-title">个案详情</div>
+      <button class="modal-close" onclick="closeModal('viewModal')">×</button>
+    </div>
+    <div id="viewModalContent" style="font-size:14px; line-height:1.8;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('viewModal')">关闭</button>
+      <button class="btn btn-primary" id="viewEditBtn" onclick="openEditFromView()">编辑</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!checkAuth()) {}
+
+let currentCases = [];
+let currentViewId = null;
+
+const RISK_BADGE = { '一般': 'badge-low', '关注': 'badge-medium', '重点': 'badge-high' };
+const STATUS_MAP = { pending: '待跟进', in_progress: '进行中', completed: '已结案', closed: '已结案' };
+const STATUS_BADGE = { pending: 'badge-pending', in_progress: 'badge-confirmed', completed: 'badge-completed', closed: 'badge-completed' };
+
+document.addEventListener('DOMContentLoaded', loadCases);
+
+async function loadCases() {
+  const risk = document.getElementById('filterRisk').value;
+  const status = document.getElementById('filterStatus').value;
+  const container = document.getElementById('casesTable');
+
+  container.innerHTML = '<div class="loading-mask"><div class="spinner"></div>加载中...</div>';
+
+  try {
+    let path = '/admin/cases';
+    const params = [];
+    if (risk) params.push(`risk_level=${risk}`);
+    if (status) params.push(`status=${status}`);
+    if (params.length) path += '?' + params.join('&');
+
+    const res = await apiGet(path);
+    currentCases = res.data || [];
+    renderStats(currentCases);
+    renderCases(currentCases);
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-text">加载失败</div></div>`;
+  }
+}
+
+function renderStats(cases) {
+  document.getElementById('statTotal').textContent = cases.length;
+  document.getElementById('statHigh').textContent = cases.filter(c => c.risk_level === '重点').length;
+  document.getElementById('statClosed').textContent = cases.filter(c => c.status === 'completed' || c.status === 'closed').length;
+  document.getElementById('statActive').textContent = cases.filter(c => c.status === 'in_progress').length;
+}
+
+function renderCases(cases) {
+  const container = document.getElementById('casesTable');
+
+  if (!cases.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🗂</div><div class="empty-state-text">暂无个案数据</div></div>';
+    return;
+  }
+
+  let html = `<table>
+    <thead>
+      <tr>
+        <th>案号</th>
+        <th>孩子姓名</th>
+        <th>性别</th>
+        <th>年龄</th>
+        <th>年龄段</th>
+        <th>问题类型</th>
+        <th>来源</th>
+        <th>风险等级</th>
+        <th>当前状态</th>
+        <th>登记日期</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  cases.forEach(c => {
+    // 去标识化：姓名仅存姓氏，电话仅存尾号
+    const childName = c.child_name ? c.child_name.charAt(0) + '某' : '-';
+    const riskClass = c.risk_level === '重点' ? 'row-high-risk' : '';
+
+    html += `<tr class="${riskClass}">
+      <td><span class="font-bold">${e(c.case_no || '-')}</span></td>
+      <td>${e(childName)}</td>
+      <td>${e(c.child_gender || '-')}</td>
+      <td>${c.child_age ? c.child_age + '岁' : '-'}</td>
+      <td>${e(c.child_age_group || '-')}</td>
+      <td>${e(c.issue_type || '-')}</td>
+      <td>${e(c.source || '-')}</td>
+      <td><span class="badge ${RISK_BADGE[c.risk_level] || 'badge-low'}">${e(c.risk_level || '一般')}</span></td>
+      <td><span class="badge ${STATUS_BADGE[c.status] || 'badge-pending'}">${STATUS_MAP[c.status] || '待跟进'}</span></td>
+      <td class="text-muted" style="font-size:12px;">${formatDate(c.created_at)}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="viewCase(${c.id})">查看</button>
+      </td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+async function viewCase(id) {
+  currentViewId = id;
+  try {
+    const res = await apiGet(`/admin/cases/${id}`);
+    const c = res.data;
+    const childName = c.child_name || '-';
+
+    document.getElementById('viewModalContent').innerHTML = `
+      <table style="width:100%; font-size:13px;">
+        <tr><td style="width:110px; color:var(--gray-500);">案号</td><td class="font-bold">${e(c.case_no || '-')}</td></tr>
+        <tr><td style="color:var(--gray-500);">孩子姓名</td><td>${e(childName)} <span class="text-muted" style="font-size:12px;">（去标识化）</span></td></tr>
+        <tr><td style="color:var(--gray-500);">性别/年龄</td><td>${e(c.child_gender || '-')} / ${c.child_age ? c.child_age + '岁' : '-'}</td></tr>
+        <tr><td style="color:var(--gray-500);">年龄段</td><td>${e(c.child_age_group || '-')}</td></tr>
+        <tr><td style="color:var(--gray-500);">监护人</td><td>${e(c.guardian_name || '-')} <span class="text-muted" style="font-size:12px;">（仅存姓氏）</span></td></tr>
+        <tr><td style="color:var(--gray-500);">监护人电话</td><td>${e(c.guardian_phone || '-')} <span class="text-muted" style="font-size:12px;">（仅存尾号）</span></td></tr>
+        <tr><td style="color:var(--gray-500);">来源</td><td>${e(c.source || '-')}</td></tr>
+        <tr><td style="color:var(--gray-500);">问题类型</td><td>${e(c.issue_type || '-')}</td></tr>
+        <tr><td style="color:var(--gray-500);">风险等级</td><td><span class="badge ${RISK_BADGE[c.risk_level]}">${e(c.risk_level || '一般')}</span></td></tr>
+        <tr><td style="color:var(--gray-500);">当前状态</td><td><span class="badge ${STATUS_BADGE[c.status]}">${STATUS_MAP[c.status] || '待跟进'}</span></td></tr>
+        <tr><td style="color:var(--gray-500);">问题描述</td><td style="padding-top:8px;">${e(c.issue_desc || '无')}</td></tr>
+        <tr><td style="color:var(--gray-500);">登记日期</td><td>${formatDate(c.created_at)}</td></tr>
+      </table>
+    `;
+    document.getElementById('addModal').classList.add('show');
+  } catch (err) {
+    showToast('加载失败', 'error');
+  }
+}
+
+function openEditFromView() {
+  closeModal('viewModal');
+  // edit functionality can be added
+}
+
+function openAddModal() {
+  document.getElementById('addCaseForm').reset();
+  document.getElementById('addModal').classList.add('show');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+document.getElementById('addCaseForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = new FormData(this);
+  const data = Object.fromEntries(form.entries());
+
+  try {
+    const res = await apiPost('/admin/cases', data);
+    closeModal('addModal');
+    showToast(`个案创建成功！案号：${res.data?.case_no || ''}`, 'success');
+    loadCases();
+  } catch (err) {
+    showToast('创建失败：' + err.message, 'error');
+  }
+});
+
+function e(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function logout() {
+  sessionStorage.removeItem('admin_logged_in');
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

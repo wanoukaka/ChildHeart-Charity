@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据看板 · 童心惠民</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🌈</span>
+    <span class="topbar-title">童心惠民</span>
+    <nav class="topbar-nav">
+      <a href="dashboard.html" class="nav-link active">📊 数据看板</a>
+      <a href="bookings.html" class="nav-link">📋 预约管理</a>
+      <a href="cases.html" class="nav-link">🗂 个案登记</a>
+      <a href="crisis.html" class="nav-link">🚨 危机干预</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user">管理员</span>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
+</header>
+
+<!-- 页面内容 -->
+<main class="page-wrapper">
+
+  <!-- 提案用主横幅 -->
+  <div class="proposal-banner" id="proposalBanner">
+    <div class="proposal-stat">
+      <div class="proposal-stat-value" id="statFamilies">-</div>
+      <div class="proposal-stat-label">累计服务家庭</div>
+    </div>
+    <div class="proposal-stat">
+      <div class="proposal-stat-value" id="statMonthNew">-</div>
+      <div class="proposal-stat-label">本月新增预约</div>
+    </div>
+    <div class="proposal-stat">
+      <div class="proposal-stat-value" id="statHighRisk">-</div>
+      <div class="proposal-stat-label">高风险预警</div>
+    </div>
+    <div class="proposal-stat">
+      <div class="proposal-stat-value" id="statCompletion">-</div>
+      <div class="proposal-stat-label">完成率</div>
+    </div>
+  </div>
+
+  <!-- 核心统计卡片 -->
+  <div class="stats-grid">
+    <div class="stat-card primary">
+      <div class="stat-label">累计服务家庭</div>
+      <div class="stat-value primary" id="cardFamilies">-</div>
+      <div class="stat-desc">项目启动至今</div>
+    </div>
+    <div class="stat-card accent">
+      <div class="stat-label">本月新增预约</div>
+      <div class="stat-value accent" id="cardMonthBookings">-</div>
+      <div class="stat-desc" id="cardMonthDesc">-</div>
+    </div>
+    <div class="stat-card danger">
+      <div class="stat-label">高风险预警</div>
+      <div class="stat-value danger" id="cardHighRisk">-</div>
+      <div class="stat-desc">建议进一步干预</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-label">咨询完成率</div>
+      <div class="stat-value" id="cardCompletionRate">-</div>
+      <div class="stat-desc">预约→实际完成</div>
+    </div>
+    <div class="stat-card primary">
+      <div class="stat-label">总预约数</div>
+      <div class="stat-value primary" id="cardTotalBookings">-</div>
+      <div class="stat-desc">全部渠道合计</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">本月已完成</div>
+      <div class="stat-value" id="cardMonthCompleted">-</div>
+      <div class="stat-desc">本月实际完成</div>
+    </div>
+  </div>
+
+  <!-- 图表区 -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">📊 各问题类型分布</div>
+      <div class="chart-container">
+        <canvas id="issueTypeChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">👶 服务年龄段分布</div>
+      <div class="chart-container">
+        <canvas id="ageGroupChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">📈 来源渠道分布</div>
+      <div class="chart-container">
+        <canvas id="sourceChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🚨 风险等级分布</div>
+      <div class="chart-container">
+        <canvas id="riskLevelChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 最新预约列表 -->
+  <div class="table-card">
+    <div class="table-toolbar">
+      <h3>📋 最新预约（最近10条）</h3>
+    </div>
+    <div id="recentBookings">
+      <div class="loading-mask"><div class="spinner"></div>加载中...</div>
+    </div>
+  </div>
+
+</main>
+
+<script src="js/api.js"></script>
+<script>
+  // ── 全局图表实例 ──
+  let issueTypeChart, ageGroupChart, sourceChart, riskLevelChart;
+
+  // ── 页面初始化 ──
+  if (!checkAuth()) { /* 重定向已在 checkAuth 中处理 */ }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadDashboard();
+  });
+
+  async function loadDashboard() {
+    try {
+      const [bookingsRes, casesRes] = await Promise.all([
+        apiGet('/admin/stats/bookings'),
+        apiGet('/admin/stats/cases'),
+      ]);
+
+      const bookings = bookingsRes.data || [];
+      const cases = casesRes.data || [];
+
+      renderStats(bookings, cases);
+      renderIssueTypeChart(bookings);
+      renderAgeGroupChart(bookings, cases);
+      renderSourceChart(bookings);
+      renderRiskLevelChart(cases);
+      renderRecentBookings(bookings);
+    } catch (err) {
+      console.error('加载失败:', err);
+      showToast('数据加载失败，请检查服务是否启动', 'error');
+    }
+  }
+
+  // ── 统计数字渲染 ──
+  function renderStats(bookings, cases) {
+    const totalBookings = bookings.length;
+    const now = new Date();
+    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const monthBookings = bookings.filter(b =>
+      b.created_at && b.created_at.startsWith(thisMonth)
+    );
+
+    const monthNew = monthBookings.length;
+
+    const monthCompleted = bookings.filter(b =>
+      b.status === 'completed' &&
+      b.updated_at && b.updated_at.startsWith(thisMonth)
+    ).length;
+
+    const completed = bookings.filter(b => b.status === 'completed').length;
+    const completionRate = totalBookings > 0
+      ? Math.round((completed / totalBookings) * 100)
+      : 0;
+
+    const highRisk = cases.filter(c => c.risk_level === '高' || c.risk_level === '重点').length;
+
+    const totalFamilies = new Set(
+      bookings.filter(b => b.guardian_phone).map(b => b.guardian_phone)
+    ).size || totalBookings;
+
+    // 主横幅
+    document.getElementById('proposalBanner').innerHTML = `
+      <div class="proposal-stat">
+        <div class="proposal-stat-value" id="pbFamilies">${totalFamilies}</div>
+        <div class="proposal-stat-label">累计服务家庭</div>
+      </div>
+      <div class="proposal-stat">
+        <div class="proposal-stat-value" id="pbMonthNew">${monthNew}</div>
+        <div class="proposal-stat-label">本月新增预约</div>
+      </div>
+      <div class="proposal-stat">
+        <div class="proposal-stat-value" id="pbHighRisk">${highRisk}</div>
+        <div class="proposal-stat-label">高风险预警</div>
+      </div>
+      <div class="proposal-stat">
+        <div class="proposal-stat-value" id="pbCompletion">${completionRate}%</div>
+        <div class="proposal-stat-label">完成率</div>
+      </div>
+    `;
+
+    // 卡片
+    document.getElementById('cardFamilies').textContent = totalFamilies;
+    document.getElementById('cardMonthBookings').textContent = monthNew;
+    document.getElementById('cardMonthDesc').textContent = `${now.getMonth() + 1}月至今`;
+    document.getElementById('cardHighRisk').textContent = highRisk;
+    document.getElementById('cardCompletionRate').textContent = `${completionRate}%`;
+    document.getElementById('cardTotalBookings').textContent = totalBookings;
+    document.getElementById('cardMonthCompleted').textContent = monthCompleted;
+  }
+
+  // ── 问题类型饼图 ──
+  function renderIssueTypeChart(bookings) {
+    const counts = {};
+    bookings.forEach(b => {
+      if (b.issue_type) {
+        const types = b.issue_type.split(/[,，/]/).map(t => t.trim()).filter(Boolean);
+        types.forEach(t => { counts[t] = (counts[t] || 0) + 1; });
+      }
+    });
+
+    const labels = Object.keys(counts);
+    const data = Object.values(counts);
+
+    const colors = ['#1a56a0', '#e8533a', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+
+    if (issueTypeChart) issueTypeChart.destroy();
+
+    const ctx = document.getElementById('issueTypeChart').getContext('2d');
+    issueTypeChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: colors.slice(0, labels.length),
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { font: { size: 12 }, padding: 12 } },
+        }
+      }
+    });
+  }
+
+  // ── 年龄段柱状图 ──
+  function renderAgeGroupChart(bookings, cases) {
+    const groups = { '3-6岁': 0, '7-12岁': 0, '13-15岁': 0, '16-18岁': 0 };
+
+    bookings.forEach(b => {
+      const age = parseInt(b.child_age);
+      if (!isNaN(age)) {
+        if (age <= 6) groups['3-6岁']++;
+        else if (age <= 12) groups['7-12岁']++;
+        else if (age <= 15) groups['13-15岁']++;
+        else groups['16-18岁']++;
+      }
+    });
+
+    cases.forEach(c => {
+      const g = c.child_age_group;
+      if (g && groups.hasOwnProperty(g)) groups[g]++;
+    });
+
+    const ctx = document.getElementById('ageGroupChart').getContext('2d');
+
+    if (ageGroupChart) ageGroupChart.destroy();
+    ageGroupChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(groups),
+        datasets: [{
+          label: '服务人次',
+          data: Object.values(groups),
+          backgroundColor: ['#60a5fa', '#34d399', '#fbbf24', '#f87171'],
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  // ── 来源渠道饼图 ──
+  function renderSourceChart(bookings) {
+    const counts = {};
+    bookings.forEach(b => {
+      const src = b.source || '网站';
+      counts[src] = (counts[src] || 0) + 1;
+    });
+
+    const labels = Object.keys(counts);
+    const data = Object.values(counts);
+    const colors = ['#1a56a0', '#e8533a', '#10b981', '#f59e0b', '#8b5cf6'];
+
+    if (sourceChart) sourceChart.destroy();
+    const ctx = document.getElementById('sourceChart').getContext('2d');
+    sourceChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: colors.slice(0, labels.length),
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { font: { size: 12 }, padding: 12 } },
+        }
+      }
+    });
+  }
+
+  // ── 风险等级分布 ──
+  function renderRiskLevelChart(cases) {
+    const counts = { '一般': 0, '关注': 0, '重点': 0 };
+    cases.forEach(c => {
+      const level = c.risk_level || '一般';
+      if (counts.hasOwnProperty(level)) counts[level]++;
+      else counts['一般']++;
+    });
+
+    const ctx = document.getElementById('riskLevelChart').getContext('2d');
+    if (riskLevelChart) riskLevelChart.destroy();
+    riskLevelChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(counts),
+        datasets: [{
+          label: '个案数',
+          data: Object.values(counts),
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  // ── 最新预约列表 ──
+  function renderRecentBookings(bookings) {
+    const container = document.getElementById('recentBookings');
+    const recent = bookings.slice(0, 10);
+
+    if (!recent.length) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">暂无预约数据</div></div>';
+      return;
+    }
+
+    const CRISIS_KEYWORDS = ['自伤', '自杀', '想死', '割腕', '不想活', '跳楼', '吃药', '虐待', '性侵', '被打', '被烫'];
+
+    let html = `<table>
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>监护人</th>
+          <th>孩子年龄</th>
+          <th>问题类型</th>
+          <th>来源</th>
+          <th>预约日期</th>
+          <th>状态</th>
+          <th>登记时间</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    recent.forEach((b, i) => {
+      const isCrisis = CRISIS_KEYWORDS.some(k => (b.issue_desc || '').includes(k) || (b.issue_type || '').includes(k));
+      const rowClass = isCrisis ? 'row-urgent' : '';
+      const statusMap = { pending: '待确认', confirmed: '已确认', completed: '已完成', cancelled: '已取消' };
+      const badgeClass = { pending: 'badge-pending', confirmed: 'badge-confirmed', completed: 'badge-completed', cancelled: 'badge-cancelled' };
+
+      html += `<tr class="${rowClass}">
+        <td>${i + 1}</td>
+        <td>${escapeHtml(b.guardian_name || '-')}${isCrisis ? ' 🚨' : ''}</td>
+        <td>${b.child_age || '-'}岁</td>
+        <td>${escapeHtml(b.issue_type || '-')}</td>
+        <td>${escapeHtml(b.source || '网站')}</td>
+        <td>${b.preferred_date || '-'}</td>
+        <td><span class="badge ${badgeClass[b.status] || 'badge-pending'}">${statusMap[b.status] || '待确认'}</span></td>
+        <td>${formatDate(b.created_at)}</td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function logout() {
+    sessionStorage.removeItem('admin_logged_in');
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

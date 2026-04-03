@@ -137,3 +137,82 @@ CREATE TABLE IF NOT EXISTS audit_log (
   user_agent TEXT DEFAULT '',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ══════════════════════════════════════════════
+-- 2026-04-03 新增表（第一期 MVP）
+-- ══════════════════════════════════════════════
+
+-- 志愿者
+CREATE TABLE IF NOT EXISTS volunteers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  phone TEXT DEFAULT '',
+  skill TEXT DEFAULT '',
+  avail_hours TEXT DEFAULT '',
+  service_count INTEGER DEFAULT 0,
+  total_hours REAL DEFAULT 0,
+  status TEXT DEFAULT 'active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 志愿者服务记录
+CREATE TABLE IF NOT EXISTS volunteer_services (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  volunteer_id INTEGER REFERENCES volunteers(id),
+  case_id INTEGER REFERENCES cases(id),
+  service_date TEXT,
+  service_hours REAL DEFAULT 0,
+  service_type TEXT DEFAULT '',
+  notes TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 危机记录
+CREATE TABLE IF NOT EXISTS crisis_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  case_id INTEGER REFERENCES cases(id),
+  booking_id INTEGER,
+  crisis_level TEXT NOT NULL,  -- urgent/attention/normal
+  trigger_keyword TEXT DEFAULT '',
+  description TEXT DEFAULT '',
+  response TEXT DEFAULT '',
+  referred_to TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 随访计划
+CREATE TABLE IF NOT EXISTS followup_plans (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  case_id INTEGER REFERENCES cases(id),
+  planned_date TEXT NOT NULL,
+  followup_type TEXT DEFAULT 'routine',
+  status TEXT DEFAULT 'pending',
+  result TEXT DEFAULT '',
+  notes TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 活动记录
+CREATE TABLE IF NOT EXISTS activities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  activity_type TEXT DEFAULT '',
+  held_date TEXT,
+  location TEXT DEFAULT '',
+  participant_count INTEGER DEFAULT 0,
+  satisfaction_score REAL,
+  notes TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 家长沟通记录
+CREATE TABLE IF NOT EXISTS family_communications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  case_id INTEGER REFERENCES cases(id),
+  comm_date TEXT NOT NULL,
+  comm_type TEXT DEFAULT '家长',
+  summary TEXT DEFAULT '',
+  advice TEXT DEFAULT '',
+  next_followup TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

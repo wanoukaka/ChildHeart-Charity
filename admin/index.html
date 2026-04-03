@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>童心惠民 · 后台登录</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="login-body">
+  <div class="login-card">
+    <div class="login-logo">🌈</div>
+    <h1 class="login-title">童心惠民</h1>
+    <p class="login-subtitle">公益心理咨询平台 · 后台管理系统</p>
+    <form class="login-form" id="loginForm" autocomplete="off">
+      <input
+        type="password"
+        class="login-input"
+        id="password"
+        placeholder="请输入管理员密码"
+        autofocus
+      >
+      <button type="submit" class="login-btn">登 录</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+
+  <script>
+    const VALID_PASSWORDS = ['admin', 'childheart2026'];
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pw = document.getElementById('password').value.trim();
+      const errEl = document.getElementById('loginError');
+
+      if (!pw) {
+        errEl.textContent = '请输入密码';
+        return;
+      }
+
+      if (!VALID_PASSWORDS.includes(pw)) {
+        errEl.textContent = '密码错误，请联系管理员';
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+        return;
+      }
+
+      // 保存登录状态
+      sessionStorage.setItem('admin_logged_in', '1');
+      sessionStorage.setItem('admin_login_time', Date.now().toString());
+
+      window.location.href = 'dashboard.html';
+    });
+
+    // 回车直接提交
+    document.getElementById('password').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+</body>
+</html>

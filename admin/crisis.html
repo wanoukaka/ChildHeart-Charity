@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>危机干预 · 童心惠民</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🌈</span>
+    <span class="topbar-title">童心惠民</span>
+    <nav class="topbar-nav">
+      <a href="dashboard.html" class="nav-link">📊 数据看板</a>
+      <a href="bookings.html" class="nav-link">📋 预约管理</a>
+      <a href="cases.html" class="nav-link">🗂 个案登记</a>
+      <a href="crisis.html" class="nav-link active">🚨 危机干预</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user">管理员</span>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
+</header>
+
+<main class="page-wrapper">
+  <div class="page-title">🚨 危机干预</div>
+
+  <!-- 高风险横幅 -->
+  <div id="highRiskBanner" class="high-risk-banner" style="display:none;">
+    <div class="high-risk-banner-icon">🚨</div>
+    <div>
+      <div class="high-risk-banner-title" id="bannerTitle">高风险预警</div>
+      <div class="high-risk-banner-desc" id="bannerDesc">发现需要关注的危机记录，请及时处理</div>
+    </div>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card danger">
+      <div class="stat-label">紧急（🔴）</div>
+      <div class="stat-value danger" id="statUrgent">-</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-label">需关注（🟡）</div>
+      <div class="stat-value" style="color:var(--warning);" id="statAttention">-</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-label">已处理</div>
+      <div class="stat-value" style="color:var(--success);" id="statNormal">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">危机总数</div>
+      <div class="stat-value" id="statTotal">-</div>
+    </div>
+  </div>
+
+  <!-- 关键词说明 -->
+  <div class="table-card mb-20">
+    <div class="table-toolbar">
+      <h3>⚠️ 危机关键词库</h3>
+    </div>
+    <div style="padding:16px 24px; display:flex; flex-wrap:wrap; gap:8px;">
+      <span class="badge badge-urgent" style="font-size:12px;">自伤</span>
+      <span class="badge badge-urgent" style="font-size:12px;">自杀</span>
+      <span class="badge badge-urgent" style="font-size:12px;">想死</span>
+      <span class="badge badge-urgent" style="font-size:12px;">割腕</span>
+      <span class="badge badge-urgent" style="font-size:12px;">不想活</span>
+      <span class="badge badge-urgent" style="font-size:12px;">跳楼</span>
+      <span class="badge badge-urgent" style="font-size:12px;">吃药</span>
+      <span class="badge badge-urgent" style="font-size:12px;">上吊</span>
+      <span class="badge badge-urgent" style="font-size:12px;">虐待</span>
+      <span class="badge badge-urgent" style="font-size:12px;">性侵</span>
+      <span class="badge badge-urgent" style="font-size:12px;">被打</span>
+      <span class="badge badge-urgent" style="font-size:12px;">被烫</span>
+      <span class="badge badge-urgent" style="font-size:12px;">被关</span>
+      <span class="badge badge-urgent" style="font-size:12px;">想杀人</span>
+      <span class="badge badge-urgent" style="font-size:12px;">想报复</span>
+      <span class="badge badge-urgent" style="font-size:12px;">被打</span>
+      <span class="badge badge-urgent" style="font-size:12px;">被烫</span>
+    </div>
+    <div style="padding:0 24px 16px; font-size:13px; color:var(--gray-500);">
+      当预约或留言中出现以上关键词，系统将自动创建危机记录并红色标记。
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <h3>危机记录列表</h3>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <select class="form-select" id="filterLevel" onchange="loadCrisis()">
+          <option value="">全部等级</option>
+          <option value="urgent">紧急 🔴</option>
+          <option value="attention">关注 🟡</option>
+          <option value="normal">已处理 🟢</option>
+        </select>
+        <button class="btn btn-danger" onclick="openAddModal()">+ 手动添加记录</button>
+      </div>
+    </div>
+
+    <div id="crisisTable">
+      <div class="loading-mask"><div class="spinner"></div>加载中...</div>
+    </div>
+  </div>
+</main>
+
+<!-- 危机详情模态框 -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal" style="width:600px;">
+    <div class="modal-header">
+      <div class="modal-title">🚨 危机详情</div>
+      <button class="modal-close" onclick="closeModal('viewModal')">×</button>
+    </div>
+    <div id="viewContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('viewModal')">关闭</button>
+      <button class="btn btn-danger" onclick="openResponseFromView()">更新处置</button>
+    </div>
+  </div>
+</div>
+
+<!-- 更新处置模态框 -->
+<div class="modal-overlay" id="responseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">处置更新</div>
+      <button class="modal-close" onclick="closeModal('responseModal')">×</button>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label class="form-label">危机等级</label>
+      <select class="form-select" id="respLevel" style="width:100%;">
+        <option value="urgent">🔴 紧急</option>
+        <option value="attention">🟡 关注</option>
+        <option value="normal">🟢 已处理</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label class="form-label">处置措施</label>
+      <textarea class="form-textarea" id="respResponse" rows="4" placeholder="记录处置过程和结果..."></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label class="form-label">转介机构/联系人</label>
+      <input type="text" class="form-input" id="respReferred" placeholder="如：济南市精神卫生中心 热线：12355">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('responseModal')">取消</button>
+      <button class="btn btn-danger" onclick="submitResponse()">保存处置</button>
+    </div>
+  </div>
+</div>
+
+<!-- 手动添加模态框 -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">新增危机记录</div>
+      <button class="modal-close" onclick="closeModal('addModal')">×</button>
+    </div>
+    <form id="addCrisisForm">
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">危机等级 <span style="color:var(--danger)">*</span></label>
+          <select class="form-select" name="crisis_level" style="width:100%;" required>
+            <option value="urgent">🔴 紧急</option>
+            <option value="attention">🟡 关注</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">触发关键词</label>
+          <input type="text" class="form-input" name="trigger_keyword" placeholder="如：自伤">
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">危机描述</label>
+        <textarea class="form-textarea" name="description" rows="4" placeholder="请详细描述危机情况..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addModal')">取消</button>
+        <button type="submit" class="btn btn-danger">创建记录</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!checkAuth()) {}
+
+let currentCrisis = [];
+let currentViewId = null;
+
+const LEVEL_LABEL = { urgent: '🔴 紧急', attention: '🟡 关注', normal: '🟢 已处理' };
+const LEVEL_BADGE = { urgent: 'badge-urgent', attention: 'badge-medium', normal: 'badge-completed' };
+const LEVEL_ROW_CLASS = { urgent: 'row-urgent', attention: 'row-high-risk', normal: '' };
+
+document.addEventListener('DOMContentLoaded', loadCrisis);
+
+async function loadCrisis() {
+  const level = document.getElementById('filterLevel').value;
+  const container = document.getElementById('crisisTable');
+
+  container.innerHTML = '<div class="loading-mask"><div class="spinner"></div>加载中...</div>';
+
+  try {
+    const res = await apiGet('/admin/crisis');
+    let rows = res.data || [];
+
+    // 过滤
+    if (level) rows = rows.filter(r => r.crisis_level === level);
+
+    currentCrisis = rows;
+    renderStats(res.data || []);
+    renderCrisis(rows);
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-text">加载失败</div></div>`;
+  }
+}
+
+function renderStats(all) {
+  const urgent = all.filter(r => r.crisis_level === 'urgent').length;
+  const attention = all.filter(r => r.crisis_level === 'attention').length;
+  const normal = all.filter(r => r.crisis_level === 'normal').length;
+
+  document.getElementById('statUrgent').textContent = urgent;
+  document.getElementById('statAttention').textContent = attention;
+  document.getElementById('statNormal').textContent = normal;
+  document.getElementById('statTotal').textContent = all.length;
+
+  const banner = document.getElementById('highRiskBanner');
+  if (urgent > 0) {
+    banner.style.display = 'flex';
+    document.getElementById('bannerTitle').textContent = `🚨 ${urgent} 例紧急危机待处理！`;
+    document.getElementById('bannerDesc').textContent = '请立即查看并采取处置措施';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function renderCrisis(rows) {
+  const container = document.getElementById('crisisTable');
+
+  if (!rows.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div><div class="empty-state-text">暂无危机记录</div></div>';
+    return;
+  }
+
+  let html = `<table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>危机等级</th>
+        <th>触发关键词</th>
+        <th>监护人</th>
+        <th>孩子姓名</th>
+        <th>电话</th>
+        <th>描述摘要</th>
+        <th>处置状态</th>
+        <th>记录时间</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  rows.forEach((r, i) => {
+    const rowClass = LEVEL_ROW_CLASS[r.crisis_level] || '';
+    const descShort = (r.description || '').slice(0, 30) + (r.description?.length > 30 ? '…' : '');
+    const hasResponse = r.response && r.response.trim();
+
+    html += `<tr class="${rowClass}">
+      <td>${i + 1}</td>
+      <td><span class="badge ${LEVEL_BADGE[r.crisis_level]}">${LEVEL_LABEL[r.crisis_level] || '未知'}</span></td>
+      <td><span class="text-danger font-bold">${e(r.trigger_keyword || '-')}</span></td>
+      <td>${e(r.guardian_name || '-')}</td>
+      <td>${e(r.child_name || '-')}</td>
+      <td class="text-muted">${e(r.guardian_phone || '-')}</td>
+      <td class="text-muted" style="font-size:12px;">${e(descShort || '-')}</td>
+      <td>${hasResponse ? '<span class="badge badge-completed">已处置</span>' : '<span class="badge badge-pending">待处置</span>'}</td>
+      <td class="text-muted" style="font-size:12px;">${formatDate(r.created_at)}</td>
+      <td>
+        <button class="btn btn-sm btn-danger" onclick="viewCrisis(${r.id})">查看</button>
+      </td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+async function viewCrisis(id) {
+  currentViewId = id;
+  const r = currentCrisis.find(c => c.id === id) || {};
+
+  document.getElementById('viewContent').innerHTML = `
+    <table style="width:100%; font-size:13px; line-height:2;">
+      <tr><td style="width:120px; color:var(--gray-500);">危机等级</td><td><span class="badge ${LEVEL_BADGE[r.crisis_level]}">${LEVEL_LABEL[r.crisis_level] || '-'}</span></td></tr>
+      <tr><td style="color:var(--gray-500);">触发关键词</td><td class="text-danger font-bold">${e(r.trigger_keyword || '-')}</td></tr>
+      <tr><td style="color:var(--gray-500);">监护人</td><td>${e(r.guardian_name || '-')} <span class="text-muted" style="font-size:11px;">（去标识化）</span></td></tr>
+      <tr><td style="color:var(--gray-500);">孩子姓名</td><td>${e(r.child_name || '-')} <span class="text-muted" style="font-size:11px;">（去标识化）</span></td></tr>
+      <tr><td style="color:var(--gray-500);">监护人电话</td><td>${e(r.guardian_phone || '-')} <span class="text-muted" style="font-size:11px;">（仅存尾号）</span></td></tr>
+      <tr><td style="color:var(--gray-500);">危机描述</td><td style="padding-top:6px;">${e(r.description || '无')}</td></tr>
+      <tr><td style="color:var(--gray-500);">处置措施</td><td style="color:${r.response ? 'var(--success)' : 'var(--gray-500)'}; padding-top:6px;">${e(r.response || '待处置')}</td></tr>
+      <tr><td style="color:var(--gray-500);">转介机构</td><td>${e(r.referred_to || '-')}</td></tr>
+      <tr><td style="color:var(--gray-500);">记录时间</td><td>${formatDateTime(r.created_at)}</td></tr>
+    </table>
+  `;
+  document.getElementById('viewModal').classList.add('show');
+}
+
+function openResponseFromView() {
+  closeModal('viewModal');
+  const r = currentCrisis.find(c => c.id === currentViewId) || {};
+  document.getElementById('respLevel').value = r.crisis_level || 'attention';
+  document.getElementById('respResponse').value = r.response || '';
+  document.getElementById('respReferred').value = r.referred_to || '';
+  document.getElementById('responseModal').classList.add('show');
+}
+
+async function submitResponse() {
+  const crisis_level = document.getElementById('respLevel').value;
+  const response = document.getElementById('respResponse').value;
+  const referred_to = document.getElementById('respReferred').value;
+
+  try {
+    await apiPatch(`/admin/crisis/${currentViewId}`, { crisis_level, response, referred_to });
+    closeModal('responseModal');
+    showToast('处置已保存', 'success');
+    loadCrisis();
+  } catch (err) {
+    showToast('保存失败：' + err.message, 'error');
+  }
+}
+
+function openAddModal() {
+  document.getElementById('addCrisisForm').reset();
+  document.getElementById('addModal').classList.add('show');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+document.getElementById('addCrisisForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = new FormData(this);
+  const data = Object.fromEntries(form.entries());
+
+  try {
+    await apiPost('/admin/crisis', data);
+    closeModal('addModal');
+    showToast('危机记录已创建', 'success');
+    loadCrisis();
+  } catch (err) {
+    showToast('创建失败：' + err.message, 'error');
+  }
+});
+
+function e(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function logout() {
+  sessionStorage.removeItem('admin_logged_in');
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>
