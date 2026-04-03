@@ -383,6 +383,224 @@ CREATE TABLE audit_log (
 
 ---
 
+## 8. 增强模块（参考 NGO + 儿童青少年咨询平台新增）
+
+### 8.1 危机干预模块 ⚠️
+
+**儿童青少年咨询最高优先级模块，参考学校心理危机干预体系。**
+
+| 功能 | 说明 |
+|------|------|
+| 关键词实时预警 | 提交预约/留言时自动扫描：自伤/自杀/他伤/虐待等敏感词，即时标红 |
+| 危机分级 | 🔴紧急（已有行为）/🟡关注（有想法无行为）/🟢常规 |
+| 危机响应流程 | 自动通知管理员 + 生成危机记录 + 启动应急预案 |
+| 快速转介 | 一键联系当地精神卫生中心/儿童医院急诊 |
+| 危机档案 | 记录危机发生时间、表现、干预措施、转介去向 |
+
+**关键词库示例：**
+```
+自伤类：割腕/不想活/活着没意思/想死/结束生命
+自杀类：跳楼/吃药/上吊/不想活了
+他伤类：想杀人/想报复/想打
+虐待类：被打/被烫/被关/性侵
+```
+
+---
+
+### 8.2 志愿者管理 🧑‍🤝‍🧑（NGO 特色）
+
+**公益机构核心资产，记录每位志愿者的服务轨迹。**
+
+| 功能 | 说明 |
+|------|------|
+| 志愿者档案 | 姓名/联系方式/资质/可服务时间/擅长领域 |
+| 培训记录 | 参加培训名称/日期/考核结果 |
+| 服务记录 | 绑定个案/服务时长/服务类型（陪玩/倾听/援助等）|
+| 工时统计 | 自动累计每位志愿者总工时 |
+| 荣誉墙 | 季度之星/年度优秀志愿者（可脱敏展示在前台）|
+| 调度安排 | 志愿者排班与个案需求匹配 |
+
+---
+
+### 8.3 家校联动 📋
+
+**儿童青少年咨询必须联动学校和家庭。**
+
+| 功能 | 说明 |
+|------|------|
+| 学校信息 | 绑定个案所在学校（仅存区/不存具体校名）|
+| 班主任联系 | 记录联系情况（去标识化）|
+| 家长沟通记录 | 记录每次家长沟通的时间/内容摘要/建议 |
+| 家长学堂 | 推送适合家长观看的文章/视频（可集成到前台）|
+| 家庭作业 | 咨询师布置的家庭任务，家长在线反馈完成情况 |
+| 学校回访 | 阶段性向学校反馈（需家长授权）|
+
+---
+
+### 8.4 随访追踪 🔄
+
+**参考医院随访系统，咨询结束后持续跟踪。**
+
+| 功能 | 说明 |
+|------|------|
+| 随访计划 | 个案结案时自动生成随访计划（1周/1月/3月/半年）|
+| 随访记录 | 家长/孩子自主填写或咨询师主动跟进 |
+| 状态评估 | 量表复查 + 主诉变化 |
+| 复发预警 | 随访评分下降自动提醒 |
+| 长期追踪档案 | 可追溯个案结案后最长2年的状态变化 |
+
+---
+
+### 8.5 年度/学期对比分析 📊
+
+**学校合作项目核心功能，支撑提案数据说服力。**
+
+| 功能 | 说明 |
+|------|------|
+| 学期对比 | 本学期 vs 上学期，问题类型分布变化 |
+| 问题类型趋势 | 焦虑/抑郁/ADHD/校园霸凌等占比趋势（折线图）|
+| 预警率变化 | 高风险识别率同比/环比 |
+| 服务覆盖率 | 学校总人数 vs 实际接受服务人数 |
+| 效果评估 | 咨询前后量表分数对比（配对数据） |
+
+---
+
+### 8.6 公益项目活动管理 🎯
+
+**记录每次公益活动，支撑民政/政协数据申报。**
+
+| 功能 | 说明 |
+|------|------|
+| 活动档案 | 名称/日期/地点/参与人数/服务类型 |
+| 活动类型 | 心理健康讲座/团辅/筛查/家长课堂/志愿者培训 |
+| 效果收集 | 活动后满意度评分 + 留言反馈 |
+| 数据汇总 | 自动统计年度/季度活动总数和服务人次 |
+| 媒体报道 | 关联新闻链接，用于公益项目申报 |
+
+---
+
+### 8.7 咨询师督导 📝
+
+**保障咨询质量，专业成长留档。**
+
+| 功能 | 说明 |
+|------|------|
+| 督导记录 | 每次督导的主题/结论/待跟进事项 |
+| 疑难个案讨论 | 记录团队讨论过程（保密）|
+| 继续教育学分 | 记录咨询师参加培训/督导/学习的学分 |
+| 胜任力评估 | 定期自评 + 主管评估 |
+
+---
+
+### 8.8 多角色权限体系 👥
+
+**参考学校心理平台的多角色设计。**
+
+| 角色 | 权限范围 |
+|------|---------|
+| 管理员 | 全部功能 + 账号管理 + 数据导出 |
+| 主咨询师 | 分配个案 + 咨询记录 + 报告生成 |
+| 咨询师 | 本人个案 + 本人记录 |
+| 志愿者 | 志愿者工时记录 + 查看分配给自己的个案 |
+| 学校联络员 | 查看本校个案预约状态 + 简单沟通记录 |
+| 数据观察员（政府/政协）| 仅看去标识化统计报告，无个案详情 |
+
+---
+
+### 8.9 自动预警触发器 🚨
+
+**超越一般 NGO 后台的核心竞争力。**
+
+| 触发条件 | 预警内容 | 响应方式 |
+|---------|---------|---------|
+| 量表高风险 | CDI/SDQ/任何量表超阈值 | Dashboard 弹窗 + 管理员通知 |
+| 预约含敏感词 | 自伤/自杀/虐待等关键词 | 紧急标记 + 立即提醒 |
+| 随访评分下降 | 连续两次随访评分走低 | 建议安排复诊 |
+| 预约后48h未确认 | 未联系到家长 | 提醒跟进 |
+| 个案超10次无结案 | 长期未结案预警 | 建议督导或转介 |
+
+---
+
+## 9. 新增数据库表
+
+```sql
+-- 志愿者
+CREATE TABLE volunteers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  phone TEXT,
+  skill TEXT DEFAULT '',
+  avail_hours TEXT DEFAULT '',
+  service_count INTEGER DEFAULT 0,
+  total_hours REAL DEFAULT 0,
+  status TEXT DEFAULT 'active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 志愿者服务记录
+CREATE TABLE volunteer_services (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  volunteer_id INTEGER REFERENCES volunteers(id),
+  case_id INTEGER REFERENCES cases(id),
+  service_date TEXT,
+  service_hours REAL DEFAULT 0,
+  service_type TEXT DEFAULT '',
+  notes TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 危机记录
+CREATE TABLE crisis_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  case_id INTEGER REFERENCES cases(id),
+  crisis_level TEXT NOT NULL,  -- urgent/attention/normal
+  trigger_keyword TEXT DEFAULT '',
+  description TEXT DEFAULT '',
+  response TEXT DEFAULT '',
+  referred_to TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 随访计划
+CREATE TABLE followup_plans (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  case_id INTEGER REFERENCES cases(id),
+  planned_date TEXT NOT NULL,
+  followup_type TEXT DEFAULT 'routine',  -- routine/relapse/review
+  status TEXT DEFAULT 'pending',        -- pending/done/skipped
+  result TEXT DEFAULT '',
+  notes TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 活动记录
+CREATE TABLE activities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  activity_type TEXT DEFAULT '',  -- lecture/group/screening/training
+  held_date TEXT,
+  location TEXT DEFAULT '',
+  participant_count INTEGER DEFAULT 0,
+  satisfaction_score REAL,
+  notes TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 家长沟通记录
+CREATE TABLE family_communications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  case_id INTEGER REFERENCES cases(id),
+  comm_date TEXT NOT NULL,
+  comm_type TEXT DEFAULT '家长',  -- 家长/教师/其他
+  summary TEXT DEFAULT '',
+  advice TEXT DEFAULT '',
+  next_followup TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
 ## 7. 重要原则
 
 1. **单库本地存储**（核心原则）
