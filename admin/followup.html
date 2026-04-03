@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>随访追踪 · 童心惠民</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🌈</span>
+    <span class="topbar-title">童心惠民</span>
+    <nav class="topbar-nav">
+      <a href="dashboard.html" class="nav-link">📊 数据看板</a>
+      <a href="bookings.html" class="nav-link">📋 预约管理</a>
+      <a href="cases.html" class="nav-link">🗂 个案登记</a>
+      <a href="crisis.html" class="nav-link">🚨 危机干预</a>
+      <a href="followup.html" class="nav-link active">🔔 随访追踪</a>
+      <a href="volunteers.html" class="nav-link">🤝 志愿者</a>
+      <a href="family.html" class="nav-link">🏠 家校联动</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user">管理员</span>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
+</header>
+
+<main class="page-wrapper">
+  <div class="page-title">🔔 随访追踪</div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">-</div>
+      <div class="stat-label">随访总数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statPending">-</div>
+      <div class="stat-label">待随访</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statDone">-</div>
+      <div class="stat-label">已完成</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statOverdue">-</div>
+      <div class="stat-label">已逾期</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <h3>随访计划列表</h3>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <select class="form-select" id="filterStatus" onchange="loadFollowups()">
+          <option value="">全部状态</option>
+          <option value="pending">待随访</option>
+          <option value="in_progress">进行中</option>
+          <option value="completed">已完成</option>
+          <option value="cancelled">已取消</option>
+        </select>
+        <select class="form-select" id="filterType" onchange="loadFollowups()">
+          <option value="">全部类型</option>
+          <option value="电话回访">电话回访</option>
+          <option value="面谈">面谈</option>
+          <option value="家访">家访</option>
+          <option value="线上咨询">线上咨询</option>
+          <option value="复诊">复诊</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新建随访</button>
+      </div>
+    </div>
+
+    <div id="followupTable">
+      <div class="loading-mask"><div class="spinner"></div>加载中...</div>
+    </div>
+  </div>
+</main>
+
+<!-- 新增/编辑随访模态框 -->
+<div class="modal-overlay" id="followupModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">新建随访计划</div>
+      <button class="modal-close" onclick="closeModal('followupModal')">×</button>
+    </div>
+    <div style="padding:0 24px 24px;">
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">关联个案 <span style="color:var(--danger)">*</span></label>
+          <select class="form-select" id="fCaseId" onchange="loadCaseInfo()">
+            <option value="">— 选择个案 —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">计划日期 <span style="color:var(--danger)">*</span></label>
+          <input type="date" class="form-input" id="fPlannedDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">随访类型</label>
+          <select class="form-select" id="fFollowupType">
+            <option value="电话回访">电话回访</option>
+            <option value="面谈">面谈</option>
+            <option value="家访">家访</option>
+            <option value="线上咨询">线上咨询</option>
+            <option value="复诊">复诊</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">备注</label>
+          <textarea class="form-textarea" id="fNotes" placeholder="预定的随访内容或目的..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding:0; margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal('followupModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveFollowup()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 记录结果模态框 -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title">📝 记录随访结果</div>
+      <button class="modal-close" onclick="closeModal('resultModal')">×</button>
+    </div>
+    <div style="padding:0 24px 24px;">
+      <div id="resultModalInfo" style="background:var(--primary-light); padding:12px 16px; border-radius:8px; margin-bottom:16px; font-size:14px;"></div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">随访结果</label>
+          <textarea class="form-textarea" id="fResult" placeholder="请记录本次随访的具体情况..."></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">后续备注</label>
+          <textarea class="form-textarea" id="fResultNotes" placeholder="下次随访安排或其他注意事项..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding:0; margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal('resultModal')">取消</button>
+        <button class="btn btn-success" onclick="completeFollowup()">标记完成</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat-card { background: #fff; border-radius: var(--radius-lg); padding: 20px 24px; box-shadow: var(--shadow-sm); }
+.stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 13px; color: var(--gray-500); margin-top: 4px; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-in_progress { background: #dbeafe; color: #1e40af; }
+.badge-completed { background: #d1fae5; color: #065f46; }
+.badge-overdue { background: var(--danger-light); color: var(--danger); }
+.loading-mask { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 40px; color: var(--gray-500); }
+.spinner { width: 20px; height: 20px; border: 2px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.page-wrapper { padding: 24px; max-width: 1200px; margin: 0 auto; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--gray-900); margin-bottom: 20px; }
+.table-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.table-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--gray-100); flex-wrap: wrap; gap: 12px; }
+.table-toolbar h3 { font-size: 15px; font-weight: 600; color: var(--gray-700); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--gray-50); }
+th { padding: 10px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+td { padding: 12px 16px; font-size: 14px; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--gray-50); }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--gray-500); }
+.form-select, .form-input, .form-textarea { padding: 9px 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-size: 14px; width: 100%; }
+.form-select:focus, .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); }
+.modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; }
+.modal-overlay.show { display: flex; }
+.modal { background: #fff; border-radius: var(--radius-lg); width: 90%; max-width: 480px; box-shadow: var(--shadow-lg); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--gray-100); }
+.modal-title { font-size: 17px; font-weight: 700; }
+.modal-close { width: 32px; height: 32px; border: none; background: none; font-size: 22px; cursor: pointer; border-radius: 6px; color: var(--gray-500); display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: var(--gray-200); }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 8px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.btn { padding: 9px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+.btn:hover { opacity: 0.9; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-outline { background: #fff; border: 1.5px solid var(--gray-200); color: var(--gray-700); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.td-actions { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+</style>
+
+<script src="js/api.js"></script>
+<script>
+// ── 全局状态 ──
+let currentEditId = null;
+let currentResultId = null;
+let casesMap = {}; // id -> case info
+
+// ── 初始化 ──
+document.addEventListener('DOMContentLoaded', () => {
+  if (!checkAuth()) return;
+  loadCases();
+  loadFollowups();
+});
+
+// ── 加载个案列表 ──
+async function loadCases() {
+  try {
+    const res = await apiGet('/api/cases?status=active');
+    const cases = res.data || [];
+    const select = document.getElementById('fCaseId');
+    casesMap = {};
+    cases.forEach(c => {
+      casesMap[c.id] = c;
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.case_no} · ${c.child_name || '未知'}`;
+      select.appendChild(opt);
+    });
+  } catch (e) {
+    showToast('加载个案列表失败', 'error');
+  }
+}
+
+function loadCaseInfo() {
+  const id = document.getElementById('fCaseId').value;
+  if (!id || !casesMap[id]) return;
+  const c = casesMap[id];
+  // 可以显示更多信息到模态框
+}
+
+// ── 加载随访列表 ──
+async function loadFollowups() {
+  const status = document.getElementById('filterStatus').value;
+  const type = document.getElementById('filterType').value;
+  let url = '/api/admin/followup?';
+  if (status) url += `status=${status}&`;
+  if (type) url += `followup_type=${type}&`;
+
+  try {
+    const res = await apiGet(url);
+    const data = res.data || [];
+    renderFollowups(data);
+    updateStats(data);
+  } catch (e) {
+    showToast('加载失败', 'error');
+  }
+}
+
+function updateStats(data) {
+  const today = new Date().toISOString().split('T')[0];
+  const total = data.length;
+  const pending = data.filter(d => d.status === 'pending').length;
+  const completed = data.filter(d => d.status === 'completed').length;
+  const overdue = data.filter(d => d.planned_date < today && d.status === 'pending').length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statDone').textContent = completed;
+  document.getElementById('statOverdue').textContent = overdue;
+}
+
+function renderFollowups(data) {
+  const container = document.getElementById('followupTable');
+  if (!data.length) {
+    container.innerHTML = '<div class="empty-state">暂无随访记录</div>';
+    return;
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const rows = data.map(d => {
+    const isOverdue = d.planned_date < today && d.status === 'pending';
+    const statusClass = isOverdue ? 'badge-overdue' : `badge-${d.status}`;
+    const statusText = isOverdue ? '已逾期' : {
+      pending: '待随访', in_progress: '进行中', completed: '已完成', cancelled: '已取消'
+    }[d.status] || d.status;
+    const actions = d.status === 'pending' || d.status === 'in_progress'
+      ? `<button class="btn btn-success btn-sm" onclick="openResultModal(${d.id})">记录结果</button>
+         <button class="btn btn-outline btn-sm" onclick="openEditModal(${d.id})">编辑</button>
+         <button class="btn btn-danger btn-sm" onclick="deleteFollowup(${d.id})">删除</button>`
+      : `<button class="btn btn-outline btn-sm" onclick="viewDetail(${d.id})">查看</button>
+         <button class="btn btn-outline btn-sm" onclick="deleteFollowup(${d.id})">删除</button>`;
+
+    return `<tr>
+      <td>${d.case_no || '-'}</td>
+      <td>${d.case_child_name ? d.case_child_name.charAt(0)+'某' : '-'}</td>
+      <td>${d.followup_type || '-'}</td>
+      <td>${d.planned_date || '-'}</td>
+      <td><span class="badge ${statusClass}">${statusText}</span></td>
+      <td>${d.result || '-'}</td>
+      <td>${d.notes || '-'}</td>
+      <td class="td-actions">${actions}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>案号</th><th>儿童姓名</th><th>随访类型</th>
+            <th>计划日期</th><th>状态</th><th>结果</th><th>备注</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── 新建随访 ──
+function openAddModal() {
+  currentEditId = null;
+  document.getElementById('modalTitle').textContent = '新建随访计划';
+  document.getElementById('fCaseId').value = '';
+  document.getElementById('fPlannedDate').value = '';
+  document.getElementById('fFollowupType').value = '电话回访';
+  document.getElementById('fNotes').value = '';
+  openModal('followupModal');
+}
+
+async function openEditModal(id) {
+  try {
+    const res = await apiGet(`/api/admin/followup/${id}`);
+    const d = res.data;
+    currentEditId = id;
+    document.getElementById('modalTitle').textContent = '编辑随访计划';
+    document.getElementById('fCaseId').value = d.case_id || '';
+    document.getElementById('fPlannedDate').value = d.planned_date || '';
+    document.getElementById('fFollowupType').value = d.followup_type || '电话回访';
+    document.getElementById('fNotes').value = d.notes || '';
+    openModal('followupModal');
+  } catch (e) {
+    showToast('加载失败', 'error');
+  }
+}
+
+async function saveFollowup() {
+  const body = {
+    case_id: parseInt(document.getElementById('fCaseId').value),
+    planned_date: document.getElementById('fPlannedDate').value,
+    followup_type: document.getElementById('fFollowupType').value,
+    notes: document.getElementById('fNotes').value,
+  };
+  if (!body.case_id) { showToast('请选择关联个案', 'error'); return; }
+  if (!body.planned_date) { showToast('请选择计划日期', 'error'); return; }
+
+  try {
+    if (currentEditId) {
+      await apiPatch(`/api/admin/followup/${currentEditId}`, body);
+      showToast('已更新', 'success');
+    } else {
+      await apiPost('/api/admin/followup', body);
+      showToast('随访计划已创建', 'success');
+    }
+    closeModal('followupModal');
+    loadFollowups();
+  } catch (e) {
+    showToast('保存失败', 'error');
+  }
+}
+
+// ── 记录随访结果 ──
+async function openResultModal(id) {
+  try {
+    const res = await apiGet(`/api/admin/followup/${id}`);
+    const d = res.data;
+    currentResultId = id;
+    const info = document.getElementById('resultModalInfo');
+    const c = casesMap[d.case_id];
+    info.innerHTML = `<strong>个案：${c ? c.child_name.charAt(0)+'某' : '-'}</strong>（${d.case_no || ''}）&nbsp;&nbsp;类型：${d.followup_type || '-'}&nbsp;&nbsp;计划日期：${d.planned_date || '-'}`;
+    document.getElementById('fResult').value = '';
+    document.getElementById('fResultNotes').value = '';
+    openModal('resultModal');
+  } catch (e) {
+    showToast('加载失败', 'error');
+  }
+}
+
+async function completeFollowup() {
+  const result = document.getElementById('fResult').value;
+  const notes = document.getElementById('fResultNotes').value;
+  if (!result) { showToast('请填写随访结果', 'error'); return; }
+  try {
+    await apiPatch(`/api/admin/followup/${currentResultId}`, {
+      status: 'completed',
+      result,
+      notes: notes
+    });
+    showToast('随访已完成', 'success');
+    closeModal('resultModal');
+    loadFollowups();
+  } catch (e) {
+    showToast('操作失败', 'error');
+  }
+}
+
+async function viewDetail(id) {
+  await openEditModal(id);
+}
+
+// ── 删除 ──
+async function deleteFollowup(id) {
+  if (!confirm('确定删除此随访计划？')) return;
+  try {
+    await apiDelete(`/api/admin/followup/${id}`);
+    showToast('已删除', 'success');
+    loadFollowups();
+  } catch (e) {
+    showToast('删除失败', 'error');
+  }
+}
+
+// ── 工具 ──
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function logout() { sessionStorage.removeItem('admin_logged_in'); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

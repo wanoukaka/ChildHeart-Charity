@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>志愿者管理 · 童心惠民</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🌈</span>
+    <span class="topbar-title">童心惠民</span>
+    <nav class="topbar-nav">
+      <a href="dashboard.html" class="nav-link">📊 数据看板</a>
+      <a href="bookings.html" class="nav-link">📋 预约管理</a>
+      <a href="cases.html" class="nav-link">🗂 个案登记</a>
+      <a href="crisis.html" class="nav-link">🚨 危机干预</a>
+      <a href="followup.html" class="nav-link">🔔 随访追踪</a>
+      <a href="volunteers.html" class="nav-link active">🤝 志愿者</a>
+      <a href="family.html" class="nav-link">🏠 家校联动</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user">管理员</span>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
+</header>
+
+<main class="page-wrapper">
+  <div class="page-title">🤝 志愿者管理</div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">-</div>
+      <div class="stat-label">志愿者总数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statActive">-</div>
+      <div class="stat-label">活跃志愿者</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statHours">-</div>
+      <div class="stat-label">累计服务时长(h)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statServices">-</div>
+      <div class="stat-label">累计服务次数</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <h3>志愿者列表</h3>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input type="text" class="form-input" id="searchInput" placeholder="搜索姓名/手机/特长..." style="width:200px;" oninput="debounceSearch()">
+        <select class="form-select" id="filterStatus" onchange="loadVolunteers()">
+          <option value="">全部状态</option>
+          <option value="active">活跃</option>
+          <option value="inactive">暂停</option>
+          <option value="graduated">已结业</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddModal()">+ 添加志愿者</button>
+      </div>
+    </div>
+
+    <div id="volunteersTable">
+      <div class="loading-mask"><div class="spinner"></div>加载中...</div>
+    </div>
+  </div>
+</main>
+
+<!-- 新增/编辑志愿者模态框 -->
+<div class="modal-overlay" id="volModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title" id="volModalTitle">添加志愿者</div>
+      <button class="modal-close" onclick="closeModal('volModal')">×</button>
+    </div>
+    <div style="padding:0 24px 24px;">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">姓名 <span style="color:var(--danger)">*</span></label>
+          <input type="text" class="form-input" id="vName" placeholder="真实姓名">
+        </div>
+        <div class="form-group">
+          <label class="form-label">手机号</label>
+          <input type="tel" class="form-input" id="vPhone" placeholder="1xxxxxxxxxx">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">专业特长</label>
+          <input type="text" class="form-input" id="vSkill" placeholder="如：心理辅导、美术教育、音乐治疗...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">可服务时间</label>
+          <input type="text" class="form-input" id="vAvailHours" placeholder="如：周末全天、节假日">
+        </div>
+      </div>
+      <div class="form-row" id="statusRow" style="display:none;">
+        <div class="form-group full">
+          <label class="form-label">状态</label>
+          <select class="form-select" id="vStatus">
+            <option value="active">活跃</option>
+            <option value="inactive">暂停</option>
+            <option value="graduated">已结业</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding:0; margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal('volModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveVolunteer()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 服务记录模态框 -->
+<div class="modal-overlay" id="serviceModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <div class="modal-title" id="serviceModalTitle">服务记录</div>
+      <button class="modal-close" onclick="closeModal('serviceModal')">×</button>
+    </div>
+    <div style="padding:0 24px 24px;">
+      <div id="volSummary" style="background:var(--primary-light); padding:12px 16px; border-radius:8px; margin-bottom:16px; font-size:14px;"></div>
+      <div style="margin-bottom:16px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">服务日期 <span style="color:var(--danger)">*</span></label>
+            <input type="date" class="form-input" id="sDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">服务时长(h) <span style="color:var(--danger)">*</span></label>
+            <input type="number" class="form-input" id="sHours" step="0.5" min="0.5" placeholder="如：2">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label class="form-label">服务类型</label>
+            <select class="form-select" id="sType">
+              <option value="个案辅导">个案辅导</option>
+              <option value="活动协助">活动协助</option>
+              <option value="家访">家访</option>
+              <option value="热线服务">热线服务</option>
+              <option value="宣传推广">宣传推广</option>
+              <option value="培训">培训</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label class="form-label">关联个案</label>
+            <select class="form-select" id="sCaseId">
+              <option value="">— 无关联个案 —</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label class="form-label">备注</label>
+            <textarea class="form-textarea" id="sNotes" placeholder="本次服务简述..."></textarea>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addService()">添加服务记录</button>
+      </div>
+      <div id="serviceRecords" style="max-height:300px; overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat-card { background: #fff; border-radius: var(--radius-lg); padding: 20px 24px; box-shadow: var(--shadow-sm); }
+.stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 13px; color: var(--gray-500); margin-top: 4px; }
+.loading-mask { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 40px; color: var(--gray-500); }
+.spinner { width: 20px; height: 20px; border: 2px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.page-wrapper { padding: 24px; max-width: 1200px; margin: 0 auto; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--gray-900); margin-bottom: 20px; }
+.table-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.table-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--gray-100); flex-wrap: wrap; gap: 12px; }
+.table-toolbar h3 { font-size: 15px; font-weight: 600; color: var(--gray-700); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--gray-50); }
+th { padding: 10px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+td { padding: 12px 16px; font-size: 14px; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--gray-50); }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--gray-500); }
+.form-select, .form-input, .form-textarea { padding: 9px 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-size: 14px; width: 100%; }
+.form-select:focus, .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); }
+.modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; }
+.modal-overlay.show { display: flex; }
+.modal { background: #fff; border-radius: var(--radius-lg); width: 90%; max-width: 480px; box-shadow: var(--shadow-lg); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--gray-100); }
+.modal-title { font-size: 17px; font-weight: 700; }
+.modal-close { width: 32px; height: 32px; border: none; background: none; font-size: 22px; cursor: pointer; border-radius: 6px; color: var(--gray-500); display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: var(--gray-200); }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 8px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.btn { padding: 9px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+.btn:hover { opacity: 0.9; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-outline { background: #fff; border: 1.5px solid var(--gray-200); color: var(--gray-700); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-active { background: #d1fae5; color: #065f46; }
+.badge-inactive { background: var(--gray-100); color: var(--gray-500); }
+.badge-graduated { background: #dbeafe; color: #1e40af; }
+.td-actions { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+</style>
+
+<script src="js/api.js"></script>
+<script>
+let currentVolId = null;
+let casesMap = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!checkAuth()) return;
+  loadCases();
+  loadVolunteers();
+});
+
+async function loadCases() {
+  try {
+    const res = await apiGet('/api/cases');
+    const cases = (res.data || []).slice(0, 100);
+    casesMap = {};
+    cases.forEach(c => { casesMap[c.id] = c; });
+  } catch (e) {}
+}
+
+let searchTimer = null;
+function debounceSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(loadVolunteers, 350);
+}
+
+async function loadVolunteers() {
+  const status = document.getElementById('filterStatus').value;
+  const keyword = document.getElementById('searchInput').value;
+  let url = '/api/admin/volunteers?';
+  if (status) url += `status=${status}&`;
+  if (keyword) url += `keyword=${encodeURIComponent(keyword)}&`;
+
+  try {
+    const res = await apiGet(url);
+    const data = res.data || [];
+    renderVolunteers(data);
+    updateStats(data);
+  } catch (e) {
+    showToast('加载失败', 'error');
+  }
+}
+
+function updateStats(data) {
+  const total = data.length;
+  const active = data.filter(d => d.status === 'active').length;
+  const hours = data.reduce((s, d) => s + (parseFloat(d.total_hours) || 0), 0).toFixed(1);
+  const services = data.reduce((s, d) => s + (parseInt(d.service_count) || 0), 0);
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statHours').textContent = hours;
+  document.getElementById('statServices').textContent = services;
+}
+
+function renderVolunteers(data) {
+  const container = document.getElementById('volunteersTable');
+  if (!data.length) {
+    container.innerHTML = '<div class="empty-state">暂无志愿者记录</div>';
+    return;
+  }
+  const rows = data.map(d => {
+    const statusMap = { active: '活跃', inactive: '暂停', graduated: '已结业' };
+    const statusClass = `badge-${d.status}`;
+    return `<tr>
+      <td>${d.name || '-'}</td>
+      <td>${d.phone || '-'}</td>
+      <td>${d.skill || '-'}</td>
+      <td>${d.avail_hours || '-'}</td>
+      <td><span class="badge ${statusClass}">${statusMap[d.status] || d.status}</span></td>
+      <td>${d.service_count || 0}</td>
+      <td>${d.total_hours || 0}h</td>
+      <td class="td-actions">
+        <button class="btn btn-success btn-sm" onclick="openServiceModal(${d.id})">工时</button>
+        <button class="btn btn-outline btn-sm" onclick="openEditModal(${d.id})">编辑</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteVolunteer(${d.id})">删除</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `<div class="table-scroll"><table>
+    <thead><tr><th>姓名</th><th>手机</th><th>特长</th><th>可服务时间</th><th>状态</th><th>服务次数</th><th>累计时长</th><th>操作</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+// ── 新增/编辑 ──
+function openAddModal() {
+  currentVolId = null;
+  document.getElementById('volModalTitle').textContent = '添加志愿者';
+  document.getElementById('vName').value = '';
+  document.getElementById('vPhone').value = '';
+  document.getElementById('vSkill').value = '';
+  document.getElementById('vAvailHours').value = '';
+  document.getElementById('vStatus').value = 'active';
+  document.getElementById('statusRow').style.display = 'none';
+  openModal('volModal');
+}
+
+async function openEditModal(id) {
+  try {
+    const res = await apiGet(`/api/admin/volunteers/${id}`);
+    const d = res.data;
+    currentVolId = id;
+    document.getElementById('volModalTitle').textContent = '编辑志愿者';
+    document.getElementById('vName').value = d.name || '';
+    document.getElementById('vPhone').value = d.phone || '';
+    document.getElementById('vSkill').value = d.skill || '';
+    document.getElementById('vAvailHours').value = d.avail_hours || '';
+    document.getElementById('vStatus').value = d.status || 'active';
+    document.getElementById('statusRow').style.display = '';
+    openModal('volModal');
+  } catch (e) {
+    showToast('加载失败', 'error');
+  }
+}
+
+async function saveVolunteer() {
+  const body = {
+    name: document.getElementById('vName').value.trim(),
+    phone: document.getElementById('vPhone').value.trim(),
+    skill: document.getElementById('vSkill').value.trim(),
+    avail_hours: document.getElementById('vAvailHours').value.trim(),
+  };
+  if (currentVolId) body.status = document.getElementById('vStatus').value;
+  if (!body.name) { showToast('姓名不能为空', 'error'); return; }
+
+  try {
+    if (currentVolId) {
+      await apiPatch(`/api/admin/volunteers/${currentVolId}`, body);
+      showToast('已更新', 'success');
+    } else {
+      await apiPost('/api/admin/volunteers', body);
+      showToast('志愿者已添加', 'success');
+    }
+    closeModal('volModal');
+    loadVolunteers();
+  } catch (e) {
+    showToast('保存失败', 'error');
+  }
+}
+
+// ── 服务记录 ──
+async function openServiceModal(id) {
+  currentVolId = id;
+  document.getElementById('sDate').value = '';
+  document.getElementById('sHours').value = '';
+  document.getElementById('sType').value = '个案辅导';
+  document.getElementById('sCaseId').innerHTML = '<option value="">— 无关联个案 —</option>';
+  document.getElementById('sNotes').value = '';
+
+  // 加载个案选项
+  Object.values(casesMap).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = `${c.case_no} · ${c.child_name || '未知'}`;
+    document.getElementById('sCaseId').appendChild(opt);
+  });
+
+  try {
+    const vol = (await apiGet(`/api/admin/volunteers/${id}`)).data;
+    const summary = document.getElementById('volSummary');
+    summary.innerHTML = `<strong>${vol.name}</strong>｜累计服务：${vol.service_count || 0}次，共${vol.total_hours || 0}小时`;
+    document.getElementById('serviceModalTitle').textContent = `服务记录 · ${vol.name}`;
+
+    const records = document.getElementById('serviceRecords');
+    const services = vol.services || [];
+    if (!services.length) {
+      records.innerHTML = '<div style="text-align:center; color:var(--gray-500); padding:20px;">暂无服务记录</div>';
+    } else {
+      records.innerHTML = `<table style="width:100%; border-collapse:collapse;">
+        <thead><tr style="background:var(--gray-50);"><th style="padding:8px;text-align:left;font-size:12px;color:var(--gray-500);">日期</th><th style="padding:8px;text-align:left;font-size:12px;color:var(--gray-500);">类型</th><th style="padding:8px;text-align:left;font-size:12px;color:var(--gray-500);">时长</th><th style="padding:8px;text-align:left;font-size:12px;color:var(--gray-500);">个案</th><th style="padding:8px;text-align:left;font-size:12px;color:var(--gray-500);">备注</th></tr></thead>
+        <tbody>${services.map(s => `<tr style="border-bottom:1px solid var(--gray-100);">
+          <td style="padding:8px;font-size:13px;">${s.service_date || '-'}</td>
+          <td style="padding:8px;font-size:13px;">${s.service_type || '-'}</td>
+          <td style="padding:8px;font-size:13px;">${s.service_hours}h</td>
+          <td style="padding:8px;font-size:13px;">${s.case_child_name ? s.case_child_name.charAt(0)+'某' : '-'}</td>
+          <td style="padding:8px;font-size:13px;">${s.notes || '-'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+    openModal('serviceModal');
+  } catch (e) {
+    showToast('加载失败', 'error');
+  }
+}
+
+async function addService() {
+  const body = {
+    service_date: document.getElementById('sDate').value,
+    service_hours: parseFloat(document.getElementById('sHours').value),
+    service_type: document.getElementById('sType').value,
+    case_id: parseInt(document.getElementById('sCaseId').value) || null,
+    notes: document.getElementById('sNotes').value.trim(),
+  };
+  if (!body.service_date) { showToast('请选择服务日期', 'error'); return; }
+  if (!body.service_hours || body.service_hours <= 0) { showToast('请填写服务时长', 'error'); return; }
+
+  try {
+    await apiPost(`/api/admin/volunteers/${currentVolId}/services`, body);
+    showToast('服务记录已添加', 'success');
+    openServiceModal(currentVolId); // 刷新
+    loadVolunteers();
+  } catch (e) {
+    showToast('添加失败', 'error');
+  }
+}
+
+// ── 删除 ──
+async function deleteVolunteer(id) {
+  if (!confirm('确定删除该志愿者？（服务记录保留）')) return;
+  try {
+    await apiDelete(`/api/admin/volunteers/${id}`);
+    showToast('已删除', 'success');
+    loadVolunteers();
+  } catch (e) {
+    showToast('删除失败', 'error');
+  }
+}
+
+// ── 工具 ──
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function logout() { sessionStorage.removeItem('admin_logged_in'); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

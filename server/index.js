@@ -32,12 +32,18 @@ const messagesRouter = require('./routes/messages');
 const resourcesRouter = require('./routes/resources');
 const adminRouter = require('./routes/admin');
 const casesRouter = require('./routes/cases');
+const followupRouter = require('./routes/followup');
+const volunteersRouter = require('./routes/volunteers');
+const familyRouter = require('./routes/family');
 
 app.use('/api/bookings', bookingsRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/resources', resourcesRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/cases', casesRouter);
+app.use('/api/admin/followup', followupRouter);
+app.use('/api/admin/volunteers', volunteersRouter);
+app.use('/api/admin/family', familyRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ code: 0, msg: '童心惠民服务正常', time: new Date().toISOString() });
