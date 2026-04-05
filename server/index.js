@@ -26,6 +26,10 @@ function initDB() {
 app.use(cors());
 app.use(express.json());
 
+// ── 请求日志 ──
+const { requestLogger } = require('./middleware/logger');
+app.use(requestLogger);
+
 // ── 路由 ──
 const bookingsRouter = require('./routes/bookings');
 const messagesRouter = require('./routes/messages');
